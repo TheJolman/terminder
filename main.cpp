@@ -1,8 +1,12 @@
 // main.cpp
 #include <iostream>
 #include <list>
+#include <fstream>
 #include "Date.h"
 #include "Task.h"
+
+void saveTasksToFile(const std::list<Task> &, const std::string &);
+void loadTasksFromFile(std::list<Task> &, const std::string &);
 
 int main(int argc, char *argv[]) {
   std::list<Task> tasklist;
@@ -23,14 +27,38 @@ int main(int argc, char *argv[]) {
       std::cerr << "Invalid date format or values." << std::endl;
       return 1;
     }
+    
+    loadTasksFromFile(tasklist, "saveData.txt");
+    tasklist.emplace_back(taskname, date);
+    saveTasksToFile(tasklist, "saveData.txt");
 
-    std::cout << "Task: " << taskname << "\n";
-    std::cout << "Due: " << date << std::endl;
   }
   else {
     std::cerr << "Unknown command: " << modifier << std::endl;
     return 1;
   }
+  
+
+  for (auto &obj : tasklist) {
+    std::cout << obj << "\n";
+  }
 
   return 0;
+}
+
+void saveTasksToFile(const std::list<Task> &tasklist, const std::string &filename) {
+  std::ofstream file(filename);
+  for (const auto& task : tasklist) {
+    file << task.serialize() << std::endl;
+  }
+  file.close();
+}
+
+void loadTasksFromFile(std::list<Task> &tasklist, const std::string &filename) {
+  std::ifstream file(filename);
+  std::string line;
+  while (std::getline(file, line)) {
+    tasklist.push_back(Task::deserialize(line));
+  }
+  file.close();
 }
