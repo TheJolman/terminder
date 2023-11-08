@@ -11,8 +11,8 @@ void loadTasksFromFile(std::list<Task> &, const std::string &);
 int main(int argc, char *argv[]) {
   std::list<Task> tasklist;
 
-  if (argc != 4) {
-    std::cerr << "Usage: " << argv[0] << " add taskname date" << std::endl;
+  if (argc > 4) {
+    std::cerr << "Too many arguments. See " << argv[0] << " help for a list of commands." << std::endl;
     return 1;
   }
 
@@ -33,8 +33,22 @@ int main(int argc, char *argv[]) {
     saveTasksToFile(tasklist, "saveData.txt");
 
   }
+  else if (modifier == "clear") {
+    tasklist.clear();
+  }
+  else if (modifier == "delete" || modifier == "del") {
+
+  }
+  else if (modifier == "help") {
+    std::cout << argv[0] << " add [name] [due date]\n";
+    std::cout << argv[0] << " del [name]\n";
+    std::cout << argv[0] << " complete [name]\n";
+    std::cout << argv[0] << " clear\n";
+    std::cout << argv[0] << " help\n";
+  }
   else {
     std::cerr << "Unknown command: " << modifier << std::endl;
+    std::cerr << "Try " << argv[0] << " help for a list of commands." << std::endl;
     return 1;
   }
   
