@@ -1,4 +1,5 @@
 // Date.h
+#pragma once
 #include <iostream>
 #include <string>
 #include <regex>
@@ -14,7 +15,6 @@ private:
     if (month < 1 || month > 12) return false;
     if (year < 0 || year > 99) return false;
     
-    // Array to hold the number of days in each month
     int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     // Adjust for leap years
     if (month == 2 && (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))) {

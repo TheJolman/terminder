@@ -1,7 +1,11 @@
+// main.cpp
 #include <iostream>
+#include <list>
 #include "Date.h"
+#include "Task.h"
 
 int main(int argc, char *argv[]) {
+  std::list<Task> tasklist;
 
   if (argc != 4) {
     std::cerr << "Usage: " << argv[0] << " add taskname date" << std::endl;
