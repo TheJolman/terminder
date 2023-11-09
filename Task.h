@@ -15,6 +15,10 @@ public:
   Task(std::string name, Date dueDate) : name(name), dueDate(dueDate), completion(false) {}
   Task(std::string name, Date dueDate, bool completion) : name(name), dueDate(dueDate), completion(completion) {}
 
+  void markComplete() { completion = true; }
+  
+  std::string getName() const { return name; }
+
   friend std::ostream& operator<<(std::ostream& os, const Task& t) {
     std::string status = (t.completion ? "Completed" : "Incomplete");
     os << t.name << "\t" << t.dueDate << "\t" << status;
