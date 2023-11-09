@@ -14,7 +14,6 @@ private:
   bool isValidDate() {
     int tempyear = year + 2000;
     if (month < 1 || month > 12) return false;
-    if (tempyear < 0 || tempyear > 99) return false;
     if (tempyear < 2000 || tempyear > 2099) return false; 
     int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     // Adjust for leap years

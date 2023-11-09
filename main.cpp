@@ -26,7 +26,14 @@ int main(int argc, char *argv[]) {
   if (modifier == "add") {
     taskname = argv[2];
     std::string dateStr = argv[3];
-    Date date(dateStr);
+    Date date;
+    try {
+      Date tempDate(dateStr);
+      date = tempDate;
+    } 
+    catch (const std::invalid_argument &e) {
+      std::cerr << "FUCK YOU: " << e.what() << std::endl;
+    }
     
     loadTasksFromFile(tasklist, "saveData.txt");
     tasklist.emplace_back(taskname, date);
