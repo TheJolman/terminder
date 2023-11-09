@@ -8,8 +8,8 @@ class Task {
 private:
 
   std::string name;
-  bool completion;
   Date dueDate; 
+  bool completion;
 
 public:
   Task(std::string name, Date dueDate) : name(name), dueDate(dueDate), completion(false) {}
@@ -27,7 +27,7 @@ public:
 
   std::string serialize() const {
     std::ostringstream oss;
-    oss << name << ',' << completion << ',' << dueDate;
+    oss << name << ',' << dueDate << ',' << completion;
     return oss.str();
   }
 
@@ -41,7 +41,7 @@ public:
     date.parseDate(token);
     std::getline(iss, token, ',');
     bool completion;
-    if (token == "Completed")
+    if (token == "1")
       completion = true;
     else
       completion = false;

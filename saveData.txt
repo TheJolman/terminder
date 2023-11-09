@@ -1,4 +1,1 @@
-poopin,0,0/0/0
-pissin,0,0/0/0
-poopin,0,0/0/0
-coding,0,1/3/22
+poopin,1/1/1,0
