@@ -38,7 +38,13 @@ public:
     std::string name = token;
     std::getline(iss, token, ',');
     Date date;
-    date.parseDate(token);
+    try {
+      Date tryDate(token);
+      date = tryDate;
+    }
+    catch (const std::invalid_argument &e) {
+      std::cerr << "Error: " << e.what() << std::endl;
+    }
     std::getline(iss, token, ',');
     bool completion;
     if (token == "1")

@@ -26,10 +26,7 @@ int main(int argc, char *argv[]) {
   if (modifier == "add") {
     taskname = argv[2];
     std::string dateStr = argv[3];
-    if (!date.parseDate(dateStr)) {
-      std::cerr << "Invalid date format or values." << std::endl;
-      return 1;
-    }
+    Date date(dateStr);
     
     loadTasksFromFile(tasklist, "saveData.txt");
     tasklist.emplace_back(taskname, date);
@@ -54,13 +51,19 @@ int main(int argc, char *argv[]) {
   }
   else if (modifier == "delete" || modifier == "del") { // lst.erase(iterator)
     loadTasksFromFile(tasklist, "saveData.txt");
-    std::string nameToFind = argv[3];
+    std::string nameToFind = argv[2];
 
     auto it = std::find_if(tasklist.begin(), tasklist.end(), [nameToFind](const Task &obj) {
       return obj.getName() == nameToFind;
     });
 
-    tasklist.erase(it);
+    if (it != tasklist.end()) {
+      tasklist.erase(it);
+      std::cout << "Task '" << nameToFind << "' deleted successfully.\n";
+    }
+    else {
+      std::cerr << "Task '" << nameToFind << "' not found.\n";
+    }
     saveTasksToFile(tasklist, "saveData.txt");
   }
   else if (modifier == "help") {
