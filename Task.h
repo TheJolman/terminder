@@ -16,6 +16,8 @@ public:
   Task(std::string name, Date dueDate, bool completion) : name(name), dueDate(dueDate), completion(completion) {}
 
   void markComplete() { completion = true; }
+
+  bool getCompletion() const { return completion; }
   
   std::string getName() const { return name; }
 

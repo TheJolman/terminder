@@ -7,12 +7,21 @@
 #include "Task.h"
 
 // TODO: add some argc error checking with the specific commands
+// Currently a tasks are still added to the list when an error is thrown. Prob has to do with
+// the constructor or something. 
+// Also argv[0] del with no additional arguments still doesn't work
+  
 
 void saveTasksToFile(const std::list<Task> &, const std::string &);
 void loadTasksFromFile(std::list<Task> &, const std::string &);
 
 int main(int argc, char *argv[]) {
   std::list<Task> tasklist;
+
+  if (argc == 1) {
+    std::cerr << "Please provide an argument. See " << argv[0] << " help for a list of commands." << std::endl;
+    return 1;
+  }
 
   if (argc > 4) {
     std::cerr << "Too many arguments. See " << argv[0] << " help for a list of commands." << std::endl;
@@ -60,18 +69,34 @@ int main(int argc, char *argv[]) {
     loadTasksFromFile(tasklist, "saveData.txt");
     std::string nameToFind = argv[2];
 
-    auto it = std::find_if(tasklist.begin(), tasklist.end(), [nameToFind](const Task &obj) {
-      return obj.getName() == nameToFind;
-    });
+    if (argc == 2) {
+      for (auto it = tasklist.begin(); it != tasklist.end();) {
+        if (it->getCompletion()) {
+          it = tasklist.erase(it);
+        }
+        else {
+          it++;
+        }
+      }
+      std::cout << "Completed Tasks Deleted.\n";
+      saveTasksToFile(tasklist, "saveData.txt");
+    }
 
-    if (it != tasklist.end()) {
-      tasklist.erase(it);
-      std::cout << "Task '" << nameToFind << "' deleted successfully.\n";
-    }
     else {
-      std::cerr << "Task '" << nameToFind << "' not found.\n";
-    }
-    saveTasksToFile(tasklist, "saveData.txt");
+      auto it = std::find_if(tasklist.begin(), tasklist.end(), [nameToFind](const Task &obj) {
+        return obj.getName() == nameToFind;
+      });
+
+      if (it != tasklist.end()) {
+        tasklist.erase(it);
+        std::cout << "Task '" << nameToFind << "' deleted successfully.\n";
+      }
+      else {
+        std::cerr << "Task '" << nameToFind << "' not found.\n";
+      }
+      saveTasksToFile(tasklist, "saveData.txt");
+
+      }
   }
   else if (modifier == "help") {
     std::cout << argv[0] << " view\n";
@@ -90,7 +115,6 @@ int main(int argc, char *argv[]) {
     std::cerr << "Try " << argv[0] << " help for a list of commands." << std::endl;
     return 1;
   }
-  
 
   for (auto &obj : tasklist) {
     std::cout << obj << "\n";
