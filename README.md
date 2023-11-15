@@ -1,7 +1,7 @@
-# taskV2
-Simple terminal task manager  
-Tasks are rembered in a save file between uses  
+# taskV2  
+Simple Terminal Task Manager  
 ---  
+Tasks are stored in a .txt save file
 ## usage:  
 add <taskname> <mm/dd/yy>  
 complete <taskname>  
