@@ -1,4 +1,4 @@
-# taskV2  
+# task  
 Simple Terminal Task Manager  
 ---  
 Tasks are stored in a .txt save file
