@@ -1,22 +1,39 @@
+# Makefile
+
+# Compiler and compiler flags
 CXX = clang++
+CXXFLAGS = -Wall -Wextra -std=c++17 -g
 
-CXXFLAGS = -g -Wall
+# Directories
+SRCDIR = src
+BUILDDIR = build
 
-TARGET = task
+# Target executable name
+TARGET = $(BUILDDIR)/task
 
-SOURCES = $(wildcard *.cpp)
+# Source and object files
+SOURCES = $(wildcard $(SRCDIR)/*.cpp)
+OBJECTS = $(SOURCES:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.o)
 
-OBJECTS = $(SOURCES:.cpp=.o)
+# Header files
+HEADERS = $(wildcard $(SRCDIR)/*.h)
 
+# Default target
 all: $(TARGET)
 
+# Linking
 $(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
-%.o: %.cpp
+# Compiling
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-.PHONY: clean
+# Creating build directory
+$(shell mkdir -p $(BUILDDIR))
 
+# Clean up
 clean:
-	rm -f $(OBJECTS) $(TARGET)
+	rm -rf $(BUILDDIR)
+
+.PHONY: all clean

@@ -20,7 +20,6 @@
  * Author: Joshua Holman
  * Contact: jolman@duck.com
  */
-
 #pragma once
 #include <iostream>
 #include <string>
