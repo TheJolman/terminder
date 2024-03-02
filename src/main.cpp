@@ -24,18 +24,40 @@
 #include <iostream>
 #include <list>
 #include <fstream>
-#include <algorithm>
-#include "Date.h"
-#include "Task.h"
+#include "Date.hpp"
+#include "Task.hpp"
 
-// TODO: add some argc error checking with the specific commands
-// Currently a tasks are still added to the list when an error is thrown. Prob has to do with
-// the constructor or something. 
-// Also argv[0] del with no additional arguments still doesn't work
-  
+#include <map>
+
+void help();
+void add(int, char *[], std::list<Task> &);
+void complete(int, char *[], std::list<Task> &);
+void del(int, char *[], std::list<Task> &);
+void clear(std::list<Task> &);
+void view(std::list<Task> &);
 
 void saveTasksToFile(const std::list<Task> &, const std::string &);
 void loadTasksFromFile(std::list<Task> &, const std::string &);
+
+enum Command {
+  ADD,
+  COMPLETE,
+  DELETE,
+  CLEAR,
+  HELP,
+  VIEW,
+  UNKNOWN
+};
+
+std::map<std::string, Command> commandMap = {
+  {"add", ADD},
+  {"complete", COMPLETE},
+  {"del", DELETE},
+  {"clear", CLEAR},
+  {"help", HELP},
+  {"view", VIEW}
+};
+  
 
 int main(int argc, char *argv[]) {
   std::list<Task> tasklist;
@@ -51,95 +73,35 @@ int main(int argc, char *argv[]) {
   }
 
   std::string modifier = argv[1];
-  std::string taskname;
-  Date date;
+  Command command = commandMap.count(modifier) ? commandMap[modifier] : UNKNOWN;
 
-  if (modifier == "add") {
-    taskname = argv[2];
-    std::string dateStr = argv[3];
-    Date date;
-    try {
-      Date tempDate(dateStr);
-      date = tempDate;
-    } 
-    catch (const std::invalid_argument &e) {
-      std::cerr << "FUCK YOU: " << e.what() << std::endl;
-    }
-    
-    loadTasksFromFile(tasklist, "saveData.txt");
-    tasklist.emplace_back(taskname, date);
-    saveTasksToFile(tasklist, "saveData.txt");
-
-  }
-  else if (modifier == "complete") {
-    loadTasksFromFile(tasklist, "saveData.txt");
-    std::string nameToFind = argv[2];
-
-    auto it = std::find_if(tasklist.begin(), tasklist.end(), [nameToFind](const Task &obj) {
-      return obj.getName() == nameToFind;
-    });
-
-    it->markComplete();
-    saveTasksToFile(tasklist, "saveData.txt");
-  }
-  else if (modifier == "clear") {
-    loadTasksFromFile(tasklist, "saveData.txt");
-    tasklist.clear();
-    saveTasksToFile(tasklist, "saveData.txt");
-  }
-  else if (modifier == "delete" || modifier == "del") { // lst.erase(iterator)
-    loadTasksFromFile(tasklist, "saveData.txt");
-    std::string nameToFind = argv[2];
-
-    if (argc == 2) {
-      for (auto it = tasklist.begin(); it != tasklist.end();) {
-        if (it->getCompletion()) {
-          it = tasklist.erase(it);
-        }
-        else {
-          it++;
-        }
-      }
-      std::cout << "Completed Tasks Deleted.\n";
-      saveTasksToFile(tasklist, "saveData.txt");
-    }
-
-    else {
-      auto it = std::find_if(tasklist.begin(), tasklist.end(), [nameToFind](const Task &obj) {
-        return obj.getName() == nameToFind;
-      });
-
-      if (it != tasklist.end()) {
-        tasklist.erase(it);
-        std::cout << "Task '" << nameToFind << "' deleted successfully.\n";
-      }
-      else {
-        std::cerr << "Task '" << nameToFind << "' not found.\n";
-      }
-      saveTasksToFile(tasklist, "saveData.txt");
-
-      }
-  }
-  else if (modifier == "help") {
-    std::cout << argv[0] << " view\n";
-    std::cout << argv[0] << " add [name] [due date]\n";
-    std::cout << argv[0] << " complete [name]\n";
-    std::cout << argv[0] << " del [name]\n";
-    std::cout << "Note: " << argv[0] << " del with no arguments will delete all completed tasks.\n";
-    std::cout << argv[0] << " clear\n";
-    std::cout << argv[0] << " help\n";
-  }
-  else if (modifier == "view") {
-    loadTasksFromFile(tasklist, "saveData.txt");
-  }
-  else {
-    std::cerr << "Unknown command: " << modifier << std::endl;
-    std::cerr << "Try " << argv[0] << " help for a list of commands." << std::endl;
-    return 1;
+  switch (command) {
+    case ADD:
+      add(argc, argv, tasklist);
+        break;
+    case COMPLETE:
+      complete(argc, argv, tasklist);
+      break;
+    case CLEAR:
+      clear(tasklist);
+      break;
+    case DELETE:
+      del(argc, argv, tasklist);
+      break;
+    case HELP:
+      help();
+      break;
+    case VIEW:
+      view(tasklist);
+      break;
+    default:
+      std::cerr << "Unknown command: " << modifier << std::endl;
+      std::cerr << "Try " << argv[0] << " help for a list of commands." << std::endl;
+      return 1;
   }
 
   for (auto &obj : tasklist) {
-    std::cout << obj << "\n";
+      std::cout << obj << "\n";
   }
 
   return 0;
@@ -160,4 +122,76 @@ void loadTasksFromFile(std::list<Task> &tasklist, const std::string &filename) {
     tasklist.push_back(Task::deserialize(line));
   }
   file.close();
+}
+
+void help() {
+    std::cout << "task [option] [arguments]\n"
+              << "Options:\n"
+              << "add [name] [due date]   - Adds a task with optional due date\n"
+              << "complete [name]         - Marks a task as complete\n"
+              << "del [name]              - Deletes a task, deleted all completed tasks if given no argument\n"
+              << "clear                   - Deletes all tasks\n"
+              << "help                    - Displays this message\n";  
+}
+
+void add(int argc, char *argv[], std::list<Task> &tasklist) {
+  if (argc < 3) {
+    std::cerr << "Not enough arguments for 'add' command." << std::endl;
+    return;
+  }
+
+  std::string taskname = argv[2];
+  std::string dateStr = (argc > 3) ? argv[3] : "";
+  Date date;
+
+  if (!dateStr.empty()) {
+    try {
+      Date tempDate(dateStr);
+      date = tempDate;
+    } 
+    catch (const std::invalid_argument &e) {
+      std::cerr << "Error: " << e.what() << std::endl;
+      return;
+    }
+  }
+  loadTasksFromFile(tasklist, "saveData.txt");
+  tasklist.emplace_back(taskname, date);
+  saveTasksToFile(tasklist, "saveData.txt");
+}
+
+void complete(int argc, char *argv[], std::list<Task> &tasklist) {
+  if (argc < 3) {
+    std::cerr << "Not enough arguments for 'complete' command." << std::endl;
+    return;
+  }
+
+  std::string taskname = argv[2];
+  loadTasksFromFile(tasklist, "saveData.txt");
+  for (auto &task : tasklist) {
+    if (task.getName() == taskname) {
+      task.markComplete();
+      break;
+    }
+  }
+  saveTasksToFile(tasklist, "saveData.txt");
+}
+
+void del(int argc, char *argv[], std::list<Task> &tasklist) {
+  loadTasksFromFile(tasklist, "saveData.txt");
+  if (argc < 3) {
+    tasklist.remove_if([](const Task &task) { return task.getCompletion(); });
+  } else {
+    std::string taskname = argv[2];
+    tasklist.remove_if([&](const Task &task) { return task.getName() == taskname; });
+  }
+    saveTasksToFile(tasklist, "saveData.txt");
+}
+
+void clear(std::list<Task> &tasklist) {
+  tasklist.clear();
+  saveTasksToFile(tasklist, "saveData.txt");
+}
+
+void view(std::list<Task> &tasklist) {
+  loadTasksFromFile(tasklist, "saveData.txt");
 }

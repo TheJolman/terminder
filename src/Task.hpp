@@ -23,8 +23,9 @@
 
 #pragma once
 #include <string>
-#include "Date.h"
+#include "Date.hpp"
 #include <sstream>
+#include <iostream>
 
 class Task {
 private:
@@ -32,10 +33,14 @@ private:
   std::string name;
   Date dueDate; 
   bool completion;
+  Date currentDate;
 
 public:
-  Task(std::string name, Date dueDate) : name(name), dueDate(dueDate), completion(false) {}
-  Task(std::string name, Date dueDate, bool completion) : name(name), dueDate(dueDate), completion(completion) {}
+  Task(std::string name, Date dueDate)
+    : name(name), dueDate(dueDate), completion(false), currentDate(Date()) {}
+
+  Task(std::string name, Date dueDate, bool completion, Date currentDate)
+    : name(name), dueDate(dueDate), completion(completion), currentDate(currentDate) {}
 
   void markComplete() { completion = true; }
 
@@ -51,7 +56,7 @@ public:
 
   std::string serialize() const {
     std::ostringstream oss;
-    oss << name << ',' << dueDate << ',' << completion;
+    oss << name << ',' << dueDate << ',' << completion << currentDate;
     return oss.str();
   }
 
@@ -61,20 +66,11 @@ public:
     std::getline(iss, token, ',');
     std::string name = token;
     std::getline(iss, token, ',');
-    Date date;
-    try {
-      Date tryDate(token);
-      date = tryDate;
-    }
-    catch (const std::invalid_argument &e) {
-      std::cerr << "Error: " << e.what() << std::endl;
-    }
+    Date dueDate(token);
     std::getline(iss, token, ',');
-    bool completion;
-    if (token == "1")
-      completion = true;
-    else
-      completion = false;
-    return Task(name, date, completion);
+    bool completion = (token == "1");
+    std::getline(iss, token, ',');
+    Date currentDate(token);
+    return Task(name, dueDate, completion, currentDate);
   }
 };

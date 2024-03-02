@@ -14,6 +14,7 @@ TARGET = $(BUILDDIR)/task
 # Source and object files
 SOURCES = $(wildcard $(SRCDIR)/*.cpp)
 OBJECTS = $(SOURCES:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.o)
+DEPS = $(OBJECTS:.o=.d)
 
 # Header files
 HEADERS = $(wildcard $(SRCDIR)/*.h)
@@ -25,8 +26,10 @@ all: $(TARGET)
 $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+-include $(DEPS)
+
 # Compiling
-$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(HEADERS)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Creating build directory
