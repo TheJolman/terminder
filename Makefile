@@ -12,6 +12,8 @@ SRCS := $(wildcard $(SRCDIR)/*.cpp)
 # Object files
 OBJS := $(patsubst $(SRCDIR)/%.cpp,$(BUILDDIR)/%.o,$(SRCS))
 
+HEADERS := $(wildcard $(SRCDIR)/*.hpp)
+
 # Binary name
 TARGET := $(BUILDDIR)/task
 
@@ -19,13 +21,15 @@ TARGET := $(BUILDDIR)/task
 all: $(TARGET)
 
 # Compile object files
-$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(HEADERS)
 	@mkdir -p $(BUILDDIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Link object files to create the binary
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
+
+
 
 # Clean the build directory
 clean:

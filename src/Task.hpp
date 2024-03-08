@@ -36,9 +36,10 @@ private:
   Date currentDate;
 
 public:
-  Task(std::string name, Date dueDate)
-    : name(name), dueDate(dueDate), completion(false), currentDate(Date()) {}
 
+  Task(std::string name, Date dueDate)
+    : name(name), dueDate(dueDate), completion(false), currentDate(Date()) {
+}
   Task(std::string name, Date dueDate, bool completion, Date currentDate)
     : name(name), dueDate(dueDate), completion(completion), currentDate(currentDate) {}
 
@@ -50,7 +51,13 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, const Task& t) {
     std::string status = (t.completion ? "Completed" : "Incomplete");
-    os << t.name << "\t" << t.dueDate << "\t" << status;
+    os << t.name;
+    if (t.dueDate.toString() != t.currentDate.toString()) {
+      os << "\t" << t.dueDate;
+    } else {
+      os << "\t\t";
+    }
+    os << "\t" << status;
     return os;
   }
 

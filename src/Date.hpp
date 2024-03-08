@@ -25,6 +25,7 @@
 #include <chrono>
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 
 class Date {
 private:
@@ -54,25 +55,41 @@ public:
     time_t tt = std::chrono::system_clock::to_time_t(now);
     tm local_tm = *localtime(&tt);
     date = std::chrono::system_clock::from_time_t(mktime(&local_tm));
-  }
+}
 
   // creating a date with mm/dd/yyyy
   Date(const std::string& dateStr) : currentDate(std::chrono::system_clock::now()) {
       std::istringstream ss(dateStr);
-      std::tm tm = {};
-      ss >> std::get_time(&tm, "%m/%d/%y");
-      if (ss.fail()) {
-          throw std::invalid_argument("Invalid date format: does not match mm/dd/yyyy.");
+      int month, day, year;
+      char delimiter;
+      if (ss >> month >> delimiter >> day >> delimiter >> year) {
+          if (delimiter != '/' || month < 1 || month > 12 || day < 1 || day > 31 || year < 0 || year > 99) {
+              throw std::invalid_argument("Invalid date format: does not match mm/dd/yy.");
+          }
+          std::tm tm = {};
+          tm.tm_year = year + 100; // Adjust year to be in the range 1900-1999
+          tm.tm_mon = month - 1;   // Month is 0-based in std::tm
+          tm.tm_mday = day;
+          if (!isValidDate(tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900)) {
+              throw std::invalid_argument("Invalid date: values are not valid.");
+          }
+          date = std::chrono::system_clock::from_time_t(mktime(&tm));
+      } else {
+          throw std::invalid_argument("Invalid date format: does not match mm/dd/yy.");
       }
-      if (!isValidDate(tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900)) {
-          throw std::invalid_argument("Invalid date: values are not valid.");
-      }
-      date = std::chrono::system_clock::from_time_t(mktime(&tm));
+  }
+  std::string toString() const {
+      std::time_t tt = std::chrono::system_clock::to_time_t(date);
+      tm local_tm = *localtime(&tt);
+      char buffer[11];
+      strftime(buffer, sizeof(buffer), "%m/%d/%y", &local_tm);
+      return std::string(buffer);
   }
 
   friend std::ostream& operator<<(std::ostream& os, const Date& d) {
-      std::time_t tt = std::chrono::system_clock::to_time_t(d.date);
-      os << std::put_time(localtime(&tt), "%m/%d/%Y");
-      return os;
-  }
+    std::time_t tt = std::chrono::system_clock::to_time_t(d.date);
+    tm local_tm = *localtime(&tt);
+    os << std::put_time(&local_tm, "%m/%d/%y");
+    return os;
+}
 };

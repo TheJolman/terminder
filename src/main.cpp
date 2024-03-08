@@ -1,7 +1,7 @@
 /*
  * Project: task
  * File: main.cpp
- * Description: 
+ * Description: main function
  * Copyright (C) 2024 Joshua Holman
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -17,8 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * Author: <Your Name>
- * Contact: <Your Email>
+ * Author: Joshua Holman
+ * Contact: jolman@duck.com
  */
 
 #include <iostream>
@@ -115,13 +115,17 @@ void saveTasksToFile(const std::list<Task> &tasklist, const std::string &filenam
   file.close();
 }
 
-void loadTasksFromFile(std::list<Task> &tasklist, const std::string &filename) {
-  std::ifstream file(filename);
-  std::string line;
-  while (std::getline(file, line)) {
-    tasklist.push_back(Task::deserialize(line));
-  }
-  file.close();
+void loadTasksFromFile(std::list<Task>& tasklist, const std::string& filename) {
+    std::ifstream file(filename);
+    std::string line;
+    while (std::getline(file, line)) {
+        try {
+            tasklist.push_back(Task::deserialize(line));
+        } catch (const std::invalid_argument& e) {
+            std::cerr << "Warning: Skipping invalid task data: " << line << std::endl;
+        }
+    }
+    file.close();
 }
 
 void help() {
@@ -135,28 +139,27 @@ void help() {
 }
 
 void add(int argc, char *argv[], std::list<Task> &tasklist) {
-  if (argc < 3) {
-    std::cerr << "Not enough arguments for 'add' command." << std::endl;
-    return;
-  }
-
-  std::string taskname = argv[2];
-  std::string dateStr = (argc > 3) ? argv[3] : "";
-  Date date;
-
-  if (!dateStr.empty()) {
-    try {
-      Date tempDate(dateStr);
-      date = tempDate;
-    } 
-    catch (const std::invalid_argument &e) {
-      std::cerr << "Error: " << e.what() << std::endl;
-      return;
+    if (argc < 3) {
+        std::cerr << "Not enough arguments for 'add' command." << std::endl;
+        return;
     }
-  }
-  loadTasksFromFile(tasklist, "saveData.txt");
-  tasklist.emplace_back(taskname, date);
-  saveTasksToFile(tasklist, "saveData.txt");
+
+    std::string taskname = argv[2];
+    std::string dateStr = (argc > 3) ? argv[3] : "";
+    Date dueDate;
+
+    if (!dateStr.empty()) {
+        try {
+            dueDate = Date(dateStr);
+        } catch (const std::invalid_argument &e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+            return;
+        }
+    }
+
+    loadTasksFromFile(tasklist, "saveData.txt");
+    tasklist.emplace_back(taskname, dueDate);
+    saveTasksToFile(tasklist, "saveData.txt");
 }
 
 void complete(int argc, char *argv[], std::list<Task> &tasklist) {
