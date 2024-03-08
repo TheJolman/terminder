@@ -86,6 +86,10 @@ public:
       return std::string(buffer);
   }
 
+  bool operator<(const Date& other) const {
+      return date < other.date;
+  }
+
   friend std::ostream& operator<<(std::ostream& os, const Date& d) {
     std::time_t tt = std::chrono::system_clock::to_time_t(d.date);
     tm local_tm = *localtime(&tt);

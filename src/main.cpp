@@ -26,8 +26,9 @@
 #include <fstream>
 #include "Date.hpp"
 #include "Task.hpp"
-
 #include <map>
+
+const std::string saveFilePath = "/etc/task/savedata.txt";
 
 void help();
 void add(int, char *[], std::list<Task> &);
@@ -157,9 +158,9 @@ void add(int argc, char *argv[], std::list<Task> &tasklist) {
         }
     }
 
-    loadTasksFromFile(tasklist, "saveData.txt");
+    loadTasksFromFile(tasklist, saveFilePath);
     tasklist.emplace_back(taskname, dueDate);
-    saveTasksToFile(tasklist, "saveData.txt");
+    saveTasksToFile(tasklist, saveFilePath);
 }
 
 void complete(int argc, char *argv[], std::list<Task> &tasklist) {
@@ -169,32 +170,32 @@ void complete(int argc, char *argv[], std::list<Task> &tasklist) {
   }
 
   std::string taskname = argv[2];
-  loadTasksFromFile(tasklist, "saveData.txt");
+  loadTasksFromFile(tasklist, saveFilePath);
   for (auto &task : tasklist) {
     if (task.getName() == taskname) {
       task.markComplete();
       break;
     }
   }
-  saveTasksToFile(tasklist, "saveData.txt");
+  saveTasksToFile(tasklist, saveFilePath);
 }
 
 void del(int argc, char *argv[], std::list<Task> &tasklist) {
-  loadTasksFromFile(tasklist, "saveData.txt");
+  loadTasksFromFile(tasklist, saveFilePath);
   if (argc < 3) {
     tasklist.remove_if([](const Task &task) { return task.getCompletion(); });
   } else {
     std::string taskname = argv[2];
     tasklist.remove_if([&](const Task &task) { return task.getName() == taskname; });
   }
-    saveTasksToFile(tasklist, "saveData.txt");
+    saveTasksToFile(tasklist, saveFilePath);
 }
 
 void clear(std::list<Task> &tasklist) {
   tasklist.clear();
-  saveTasksToFile(tasklist, "saveData.txt");
+  saveTasksToFile(tasklist, saveFilePath);
 }
 
 void view(std::list<Task> &tasklist) {
-  loadTasksFromFile(tasklist, "saveData.txt");
+  loadTasksFromFile(tasklist, saveFilePath);
 }

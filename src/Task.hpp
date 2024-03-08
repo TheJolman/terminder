@@ -52,12 +52,18 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const Task& t) {
     std::string status = (t.completion ? "Completed" : "Incomplete");
     os << t.name;
-    if (t.dueDate.toString() != t.currentDate.toString()) {
+    if (t.dueDate.toString() != t.currentDate.toString()) { // for when no due date is provided
       os << "\t" << t.dueDate;
     } else {
       os << "\t\t";
     }
-    os << "\t" << status;
+
+    if (!t.completion && t.isOverdue()) {
+      os << "\t\033[31m" << status << "\033[0m";
+    } else {
+      os << "\t\033[32m" << status << "\033[0m";
+    }
+
     return os;
   }
 
@@ -79,5 +85,9 @@ public:
     std::getline(iss, token, ',');
     Date currentDate(token);
     return Task(name, dueDate, completion, currentDate);
+  }
+
+  bool isOverdue() const {
+    return dueDate < currentDate;
   }
 };
