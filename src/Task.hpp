@@ -69,7 +69,7 @@ public:
 
   std::string serialize() const {
     std::ostringstream oss;
-    oss << name << ',' << dueDate << ',' << completion << currentDate;
+    oss << name << ',' << dueDate << ',' << completion << ',' << currentDate;
     return oss.str();
   }
 

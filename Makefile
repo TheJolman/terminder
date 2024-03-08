@@ -17,6 +17,12 @@ HEADERS := $(wildcard $(SRCDIR)/*.hpp)
 # Binary name
 TARGET := $(BUILDDIR)/task
 
+# Executable name
+EXECUTABLE := task
+
+# install script
+INSTALL_SCRIPT := setup.sh
+
 # Default target
 all: $(TARGET)
 
@@ -30,6 +36,15 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 
+# setup target
+install:
+	chmod +x $(INSTALL_SCRIPT)
+	./$(INSTALL_SCRIPT)
+	sudo cp $(TARGET) /usr/local/bin/
+	@echo "Installed $(EXECUTABLE) to /usr/local/bin/"
+
+uninstall:
+	sudo rm -f /usr/local/bin/$(EXECUTABLE)
 
 # Clean the build directory
 clean:
