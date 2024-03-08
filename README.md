@@ -20,7 +20,8 @@ Task is a simple, command-line task manager designed to help you keep track of y
 3. Compile the project:  
 `make`
 
-4. Install the binary: *this installs to /usr/local/bin by default and creates a file at /etc/task/savedata.txt and will ask for sudo priveledges. You can change the location of the savedata file in main.cpp and manually move the binary to somewhere else in your path if you do not wish to do this*
+4. Install the binary: 
+*this installs to /usr/local/bin by default and creates a file at /etc/task/savedata.txt and will ask for sudo priveledges. You can change the location of the savedata file in main.cpp and manually move the binary to somewhere else in your path if you do not wish to do this* 
 `make install`
 
 ## Usage
