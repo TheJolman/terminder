@@ -28,6 +28,7 @@
 #include "Task.hpp"
 #include <map>
 
+// Change this if you want to save the file to a different location
 const std::string saveFilePath = "/etc/task/savedata.txt";
 
 void help();

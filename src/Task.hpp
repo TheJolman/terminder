@@ -59,9 +59,9 @@ public:
     }
 
     if (!t.completion && t.isOverdue()) {
-      os << "\t\033[31m" << status << "\033[0m";
+      os << "\t\033[31m" << status << "\033[0m"; // red if overdue
     } else {
-      os << "\t\033[32m" << status << "\033[0m";
+      os << "\t\033[32m" << status << "\033[0m"; // green if not overdue
     }
 
     return os;
@@ -87,6 +87,7 @@ public:
     return Task(name, dueDate, completion, currentDate);
   }
 
+  // for displaying overdue tasks in red
   bool isOverdue() const {
     return dueDate < currentDate;
   }

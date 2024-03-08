@@ -50,6 +50,7 @@ private:
   
 public:
   // default constructor creates a date with the current date
+  // this is to determine if tasks are overdue or not
   Date() : currentDate(std::chrono::system_clock::now()) {
     auto now = std::chrono::system_clock::now();
     time_t tt = std::chrono::system_clock::to_time_t(now);
