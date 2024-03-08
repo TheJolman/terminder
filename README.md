@@ -6,13 +6,13 @@ Task is a simple, command-line task manager designed to help you keep track of y
 
 ## Dependencies
 
-- C++17 compatible compiler (developed with `clang`)
+- clang
 - GNU Make
 
 ## Installation
 
 1. Clone the repo:  
-`git clone [repo url]`
+`git clone https://github.com/TheJolman/task`
 
 2. Navigate to the project directory:  
 `cd task`
@@ -20,28 +20,24 @@ Task is a simple, command-line task manager designed to help you keep track of y
 3. Compile the project:  
 `make`
 
-This will create the `task` executable in the `build` directory.
+4. Install the binary: *this installs to /usr/local/bin by default and creates a file at /etc/task/savedata.txt and will ask for sudo priveledges. You can change the location of the savedata file in main.cpp and manually move the binary to somewhere else in your path if you do not wish to do this*
+`make install`
 
 ## Usage
 
 Task supports the following commands:
 
-- **Add a Task**: `add <mm/dd/yy>` - Adds a new task with a specified due date.
-- **Complete a Task**: `complete <task name>` - Marks a specified task as complete.
+- **Add a Task**: `task add <mm/dd/yy>` - Adds a new task with an optional specified due date.
+- **Complete a Task**: `task complete <task name>` - Marks a specified task as complete.
 - **Delete a Task**: 
-- `del <task name>` - Removes a specified task from the list.
-- `del` - Removes all completed tasks if run with no arguments.
-- **View Tasks**: `view` - Displays all tasks.
-- **Help**: `help` - Displays available commands.
-
-To run the task manager, use the following command from the project's root directory:  
-`./build/task`
-
-You might want to move the binary to somewhere in your PATH, however.
+- `task del <task name>` - Removes a specified task from the list.
+- `task del` - Removes all completed tasks if run with no arguments.
+- **View Tasks**: `task view` - Displays all tasks.
+- **Help**: `task help` - Displays available commands.
 
 ## Contributing
 
-Contributions to Task are welcome! Refer to the the project's issues section for any guidance on contributing.
+Contributions to Task are welcome! I'm not keeping the issues section updated but PRs are welcome.
 
 ## License
 
