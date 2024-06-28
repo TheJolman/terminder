@@ -1,53 +1,84 @@
-# Compiler settings
-CXX := clang++
-CXXFLAGS := -std=c++17 -g -Wall -Wextra -Wpedantic
+# tool macros
+CXX := clang
+CXXFLAGS :=
+DBGFLAGS := -g
+CCOBJFLAGS := $(CXXFLAGS) -c
 
-# Directories
-SRCDIR := src
-BUILDDIR := build
+# path macros
+BIN_PATH := bin
+OBJ_PATH := obj
+SRC_PATH := src
+DBG_PATH := debug
 
-# Source files
-SRCS := $(wildcard $(SRCDIR)/*.cpp)
+project_name := makefile-template
 
-# Object files
-OBJS := $(patsubst $(SRCDIR)/%.cpp,$(BUILDDIR)/%.o,$(SRCS))
+# compile macros
+TARGET_NAME := main
+ifeq ($(OS),Windows_NT)
+	TARGET_NAME := $(addsuffix .exe,$(TARGET_NAME))
+endif
+TARGET := $(BIN_PATH)/$(TARGET_NAME)
+TARGET_DEBUG := $(DBG_PATH)/$(TARGET_NAME)
 
-HEADERS := $(wildcard $(SRCDIR)/*.hpp)
+# src files & obj files
+SRC := $(foreach x, $(SRC_PATH), $(wildcard $(addprefix $(x)/*,.c*)))
+OBJ := $(addprefix $(OBJ_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC)))))
+OBJ_DEBUG := $(addprefix $(DBG_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC)))))
 
-# Binary name
-TARGET := $(BUILDDIR)/task
+# clean files list
+DISTCLEAN_LIST := $(OBJ) \
+                  $(OBJ_DEBUG)
+CLEAN_LIST := $(TARGET) \
+			  $(TARGET_DEBUG) \
+			  $(DISTCLEAN_LIST)
 
-# Executable name
-EXECUTABLE := task
+# default rule
+default: makedir all
 
-# install script
-INSTALL_SCRIPT := setup.sh
+builder-build :
+	docker build -f builder.Dockerfile -t $(project_name)-builder:latest .
 
-# Default target
+builder-run :
+	docker run \
+		--rm \
+		-it \
+		--platform linux/amd64 \
+		--workdir /builder/mnt \
+		-v ${PWD}:/builder/mnt \
+		$(project_name)-builder:latest \
+		/bin/bash
+
+
+# non-phony targets
+$(TARGET): $(OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
+
+$(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
+	$(CXX) $(CCOBJFLAGS) -o $@ $<
+
+$(DBG_PATH)/%.o: $(SRC_PATH)/%.c*
+	$(CXX) $(CCOBJFLAGS) $(DBGFLAGS) -o $@ $<
+
+$(TARGET_DEBUG): $(OBJ_DEBUG)
+	$(CXX) $(CXXFLAGS) $(DBGFLAGS) $(OBJ_DEBUG) -o $@
+
+# phony rules
+.PHONY: makedir
+makedir:
+	@mkdir -p $(BIN_PATH) $(OBJ_PATH) $(DBG_PATH)
+
+.PHONY: all
 all: $(TARGET)
 
-# Compile object files
-$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(HEADERS)
-	@mkdir -p $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+.PHONY: debug
+debug: $(TARGET_DEBUG)
 
-# Link object files to create the binary
-$(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ -o $@
-
-
-# setup target
-install:
-	chmod +x $(INSTALL_SCRIPT)
-	./$(INSTALL_SCRIPT)
-	sudo cp $(TARGET) /usr/local/bin/
-	@echo "Installed $(EXECUTABLE) to /usr/local/bin/"
-
-uninstall:
-	sudo rm -f /usr/local/bin/$(EXECUTABLE)
-
-# Clean the build directory
+.PHONY: clean
 clean:
-	rm -rf $(BUILDDIR)
+	@echo CLEAN $(CLEAN_LIST)
+	@rm -f $(CLEAN_LIST)
 
-.PHONY: all clean
+.PHONY: distclean
+distclean:
+	@echo CLEAN $(CLEAN_LIST)
+	@rm -f $(DISTCLEAN_LIST)
