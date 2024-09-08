@@ -17,6 +17,7 @@
 #include <iomanip>
 #include <iostream>
 #include <cereal/access.hpp>
+#include <cereal/types/chrono.hpp>
 
 /**
  * @brief A class that uses chrono to handle due dates
@@ -73,8 +74,8 @@ private:
   friend class cereal::access;
 
   template<class Archive>
-  void serialize(Archive& archive) {
-    archive(date);
+  void serialize(Archive& ar) {
+    ar(date);
   }
 
   /**

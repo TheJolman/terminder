@@ -1,5 +1,5 @@
 /**
- * @file TaskList.h
+ * @file TaskList.cpp
  * @brief Implementation for the TaskList class
  * @author Joshua Holman
  * @contact jolman@duck.com
@@ -12,31 +12,86 @@
 
 #include "TaskList.h"
 #include <filesystem>
+#include <cereal/archives/json.hpp>
+#include <fstream>
+#include <optional>
 
-// TODO
-void TaskList::addTask(const std::string& taskName) {
+void TaskList::addTask(const std::string& taskName, std::optional<std::string> dueDate) {
+  if (dueDate.has_value()) {
+    /*std::unique_ptr<Task> taskPtr(new Task(taskName, dueDate.value()));*/
+    list.emplace_front(Task(taskName, dueDate.value()));
+  } else {
+    /*std::unique_ptr<Task> taskPtr(new Task(taskName));*/
+    list.emplace_front(Task(taskName));
+
+  }
+
+  /*list.emplace_front(taskPtr);*/
+}
+
+void TaskList::removeTask(const std::string& taskName) noexcept {
+  bool found = false;
+  for (auto it = list.begin(); it != list.end(); it++) {
+    if (taskName == it->getName()) {
+      list.erase(it);
+      found = true;
+    }
+  }
+  if (!found) {
+    std::cout << "No task with the name '" << taskName << "' found.\n";
+  }
+}
+
+void TaskList::completeTask(const std::string& taskName) noexcept {
+  bool found = false;
+  for (Task& task : list) {
+    if (taskName == task.getName()) {
+      task.markComplete();
+    }
+  }
+  if (!found) {
+    std::cout << "No task with the name '" << taskName << "' found.\n";
+  }
+}
+
+void TaskList::removeCompletedTasks() noexcept {
+  for (auto it = list.begin(); it != list.end(); it++) {
+    if (it->isComplete()) {
+      list.erase(it);
+    }
+  }
 
 }
 
-void TaskList::removeTask() {
 
+std::optional<std::list<Task>> TaskList::getList() const noexcept {
+  if (list.empty()) {
+    return std::nullopt;
+  }
+  return list;
 }
 
-void TaskList::completeTask(const std::string& taskName) {
-
-}
-
-void TaskList::removeCompletedTasks() {
-
-}
 
 void TaskList::saveToFile() {
+  std::string fileName = "data.json";
+  std::filesystem::path appDataDir = getSaveLocation();
+  std::filesystem::create_directory(appDataDir);
+  dataFilePath = appDataDir / fileName;
+
+  std::ofstream outFile(dataFilePath);
+  cereal::JSONOutputArchive oarchive(outFile);
+  oarchive(*this); // is this correct?
 
 }
 
 void TaskList::loadFromFile() {
+  
+  std::ifstream inFile(dataFilePath);
+  cereal::JSONInputArchive iarchive(inFile);
 
+  iarchive(*this);
 }
+
 
 std::filesystem::path TaskList::getSaveLocation() {
   std::string appName = "terminder";

@@ -17,6 +17,7 @@
 #include <iostream>
 #include <cereal/access.hpp>
 #include <cereal/archives/json.hpp>
+#include <cereal/types/string.hpp>
 
 /**
  * @brief A class abstracts Tasks with a name, due date, and time to complete
@@ -29,32 +30,41 @@
  * the two.
  */
 class Task {
+  // TODO: Get time until due
 public:
 
-  Task(std::string name) : name(name), completionStatus(false) {
-    timeUntilDue = std::chrono::hours(0);
-  }
+  // Default constructor
+  Task() : name(""), completionStatus(false), timeUntilDue(std::chrono::hours(0)) {}
 
-  Task(std::string name, Date dueDateStr) : name(name), completionStatus(false), dueDate(Date(dueDateStr)) {
+  // Constructor with name
+  Task(const std::string& name) : name(name), completionStatus(false), timeUntilDue(std::chrono::hours(0)) {}
+
+  // Constructor with name and due date
+  Task(std::string name, std::string dueDateStr) : name(name), completionStatus(false), dueDate(Date(dueDateStr)) {
     Date initialDate;
     timeUntilDue = dueDate - initialDate;
   }
 
   void markComplete() { completionStatus = true; }
 
-  std::string getName() { return this->name; }
-  bool isComplete() { return this->completionStatus; }
-  Date getDueDate() { return this->dueDate; }
-  int getTimeUntilDue() { return this->timeUntilDue.count(); } // maybe needs to be long long
+  std::string getName() const { return name; }
+  bool isComplete() const { return completionStatus; }
+  Date getDueDate() const { return dueDate; }
+  int getTimeUntilDue() const { return timeUntilDue.count(); } // maybe needs to be long long
 
+  friend std::ostream& operator<<(std::ostream& os, const Task& t) noexcept {
+    // TODO: put time until due in terms of days + hours
+    os << t.name << t.dueDate << (t.completionStatus ? "Complete" : "Incomplete");
+    return os;
+  }
 
 private:
 
   friend class cereal::access;
 
   template<class Archive>
-  void serialize(Archive& archive) {
-    archive(name, completionStatus, dueDate, timeUntilDue);
+  void serialize(Archive& ar) {
+    ar(CEREAL_NVP(name), CEREAL_NVP(completionStatus), CEREAL_NVP(dueDate), CEREAL_NVP(timeUntilDue));
   }
 
   std::string name;

@@ -11,8 +11,8 @@
 #include <chrono>
 #include <sstream>
 
-std::string inputFormatStr = "%m/%d";
-std::string outputFormatStr = "%b %d";
+const std::string Date::inputFormatStr = "%m/%d";
+const std::string Date::outputFormatStr = "%b %d";
 
 std::string Date::toString(const Date& date) noexcept {
     std::time_t time = std::chrono::system_clock::to_time_t(date.date);

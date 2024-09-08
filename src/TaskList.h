@@ -13,17 +13,20 @@
 #pragma once
 
 #include <cereal/access.hpp>
+#include <cereal/types/list.hpp>
 #include "Task.h"
 #include <list>
 #include <filesystem>
+#include <optional>
 
 class TaskList {
 public:
 
-  void addTask(const std::string&);
-  void removeTask();
-  void completeTask(const std::string&);
-  void removeCompletedTasks();
+  void addTask(const std::string& taskName, std::optional<std::string> dueDate = std::nullopt);
+  void removeTask(const std::string&) noexcept;
+  void completeTask(const std::string&) noexcept;
+  void removeCompletedTasks() noexcept;
+  std::optional<std::list<Task>> getList() const noexcept;
 
   void saveToFile();
   void loadFromFile();
@@ -31,12 +34,13 @@ public:
 
 private:
   std::list<Task> list;
+  std::filesystem::path dataFilePath;
 
   friend class cereal::access;
 
   template<class Archive>
-  void serialize(Archive& archive) {
-    archive();
+  void serialize(Archive& ar) {
+    ar(list);
   }
 
   std::filesystem::path getSaveLocation();
