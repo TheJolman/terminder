@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
         } else if (command == "load") {
             taskList.loadFromFile();
             std::cout << "Tasks loaded from file.\n";
-        } else if (command == "help") {
+        } else if (command == "help" || command == "-h" || command == "--help") {
             printHelp();
         } else {
             std::cerr << "Error: Unknown command '" << command << "'.\n";
