@@ -26,11 +26,54 @@
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 
+/**
+ * @brief A class that uses chrono to handle due dates
+ * @author Joshua Holman
+ * @date 2024-09-07
+ *
+ * This class provides string input and output for dates. It handles two dates:
+ * the current date, which is initialized at object creation, and a future date
+ * provided by the user. Includes methods for validating dates and calculating
+ * the difference between the two.
+ */
 class Date {
+public:
+  /**
+   * @brief Constructs a date object with the same future time as current
+   */
+  Date() noexcept : currentDateTime(std::chrono::system_clock::now()), 
+              futureDateTime(std::chrono::system_clock::now()) {}
+
+  /**
+   * @brief Constructs a date object with provided future date
+   * @param dateStr Future date provided as a string
+   */
+  Date(const std::string& dateStr) : currentDateTime(std::chrono::system_clock::now()),
+              futureDateTime(parseDate(dateStr)) {}
+
+  /**
+   * @brief Compares two date objects. Used for sorting 
+   */
+  bool operator<(const Date& other) const {
+      return futureDateTime < other.futureDateTime;
+  }
+
+  /**
+   * @brief Used for printing date objects with std::cout
+   */
+  friend std::ostream& operator<<(std::ostream& os, const Date& d) {
+    std::time_t tt = std::chrono::system_clock::to_time_t(d.futureDateTime);
+    tm local_tm = *localtime(&tt);
+    os << std::put_time(&local_tm, "%m/%d/%y");
+    return os;
+}
+
 private:
-  std::chrono::system_clock::time_point date;
-  std::chrono::system_clock::time_point currentDate;
+  std::chrono::system_clock::time_point futureDateTime;
+  std::chrono::system_clock::time_point currentDateTime;
+  const std::string inputDateFormatStr = "%m/%d";
 
   bool isValidDate(int day, int month, int year) {
     if(year < 0 || year > 9999 || month < 1 || month > 12)
@@ -47,54 +90,17 @@ private:
     return true;
   }
 
+  std::chrono::system_clock::time_point parseDate(const std::string& dateString) {
+    std::tm tm = {};
+    std::istringstream ss(dateString);
+    ss >> std::get_time(&tm, inputDateFormatStr.c_str());
+
+    if (ss.fail()) {
+      throw std::runtime_error("Date parse failed");
+    }
+
+    return std::chrono::system_clock::from_time_t(std::mktime(&tm));
+  }
+
   
-public:
-  // default constructor creates a date with the current date
-  // this is to determine if tasks are overdue or not
-  Date() : currentDate(std::chrono::system_clock::now()) {
-    auto now = std::chrono::system_clock::now();
-    time_t tt = std::chrono::system_clock::to_time_t(now);
-    tm local_tm = *localtime(&tt);
-    date = std::chrono::system_clock::from_time_t(mktime(&local_tm));
-}
-
-  // creating a date with mm/dd/yyyy
-  Date(const std::string& dateStr) : currentDate(std::chrono::system_clock::now()) {
-      std::istringstream ss(dateStr);
-      int month, day, year;
-      char delimiter;
-      if (ss >> month >> delimiter >> day >> delimiter >> year) {
-          if (delimiter != '/' || month < 1 || month > 12 || day < 1 || day > 31 || year < 0 || year > 99) {
-              throw std::invalid_argument("Invalid date format: does not match mm/dd/yy.");
-          }
-          std::tm tm = {};
-          tm.tm_year = year + 100; // Adjust year to be in the range 1900-1999
-          tm.tm_mon = month - 1;   // Month is 0-based in std::tm
-          tm.tm_mday = day;
-          if (!isValidDate(tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900)) {
-              throw std::invalid_argument("Invalid date: values are not valid.");
-          }
-          date = std::chrono::system_clock::from_time_t(mktime(&tm));
-      } else {
-          throw std::invalid_argument("Invalid date format: does not match mm/dd/yy.");
-      }
-  }
-  std::string toString() const {
-      std::time_t tt = std::chrono::system_clock::to_time_t(date);
-      tm local_tm = *localtime(&tt);
-      char buffer[11];
-      strftime(buffer, sizeof(buffer), "%m/%d/%y", &local_tm);
-      return std::string(buffer);
-  }
-
-  bool operator<(const Date& other) const {
-      return date < other.date;
-  }
-
-  friend std::ostream& operator<<(std::ostream& os, const Date& d) {
-    std::time_t tt = std::chrono::system_clock::to_time_t(d.date);
-    tm local_tm = *localtime(&tt);
-    os << std::put_time(&local_tm, "%m/%d/%y");
-    return os;
-}
 };
