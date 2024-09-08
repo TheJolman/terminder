@@ -11,10 +11,12 @@
  */
 
 #pragma once
-#include <string>
 #include "Date.h"
+#include <string>
 #include <sstream>
 #include <iostream>
+#include <cereal/access.hpp>
+#include <cereal/archives/json.hpp>
 
 /**
  * @brief A class abstracts Tasks with a name, due date, and time to complete
@@ -45,7 +47,15 @@ public:
   Date getDueDate() { return this->dueDate; }
   int getTimeUntilDue() { return this->timeUntilDue.count(); } // maybe needs to be long long
 
+
 private:
+
+  friend class cereal::access;
+
+  template<class Archive>
+  void serialize(Archive& archive) {
+    archive(name, completionStatus, dueDate, timeUntilDue);
+  }
 
   std::string name;
   bool completionStatus;

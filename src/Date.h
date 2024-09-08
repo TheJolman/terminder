@@ -16,6 +16,7 @@
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <cereal/access.hpp>
 
 /**
  * @brief A class that uses chrono to handle due dates
@@ -64,12 +65,20 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const Date& d) noexcept;
 
 private:
+
   std::chrono::system_clock::time_point date;
   static const std::string inputFormatStr;
   static const std::string outputFormatStr;
 
+  friend class cereal::access;
+
+  template<class Archive>
+  void serialize(Archive& archive) {
+    archive(date);
+  }
+
   /**
-   * @briefUsed in the constructor to convert date strings to std::chrono::system_clock::time_point
+   * @brief Used in the constructor to convert date strings to std::chrono::system_clock::time_point
    * @param dateString User provided date string in the form of mm/dd
    */
   std::chrono::system_clock::time_point parseDate(const std::string& dateString);

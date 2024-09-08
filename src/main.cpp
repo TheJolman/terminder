@@ -1,35 +1,22 @@
-/*
- * Project: task
- * File: main.cpp
- * Description: main function
- * Copyright (C) 2024 Joshua Holman
+/**
+ * @file main.cpp
+ * @brief Main function for task program
+ * @author Joshua Holman
+ * @contact jolman@duck.com
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * @copyright Copyright (c) 2024 Joshua Holman
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- * Author: Joshua Holman
- * Contact: jolman@duck.com
+ * This source code is licensed under the MIT License.
+ * See the LICENSE file in the project root for full license information.
  */
 
 #include <iostream>
 #include <list>
 #include <fstream>
-#include "Date.hpp"
-#include "Task.hpp"
+#include "Date.h"
+#include "Task.h"
 #include <map>
 
-// Change this if you want to save the file to a different location
-const std::string saveFilePath = "./savedata.txt";
 
 void help();
 void add(int, char *[], std::list<Task> &);
