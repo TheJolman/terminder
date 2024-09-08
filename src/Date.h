@@ -1,25 +1,14 @@
-/*
- * Project: task
- * File: Date.h
- * Description: handles dates
- * Copyright (C) 2024 Joshua Holman
+/**
+ * @file Date.h
+ * @brief Handles two dates
+ * @author Joshua Holman
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * @copyright Copyright (c) 2024 Joshua Holman
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- * Author: Joshua Holman
- * Contact: jolman@duck.com
+ * This source code is licensed under the MIT License.
+ * See the LICENSE file in the project root for full license information.
  */
+
 #pragma once
 
 #include <chrono>
@@ -66,14 +55,16 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const Date& d) {
     std::time_t tt = std::chrono::system_clock::to_time_t(d.futureDateTime);
     tm local_tm = *localtime(&tt);
-    os << std::put_time(&local_tm, "%m/%d/%y");
+    os << std::put_time(&local_tm, outputFormatStr);
     return os;
 }
 
 private:
   std::chrono::system_clock::time_point futureDateTime;
   std::chrono::system_clock::time_point currentDateTime;
-  const std::string inputDateFormatStr = "%m/%d";
+  const std::string inputFormatStr = "%m/%d";
+  const std::string outputFormatStr = "%m/%d";
+
 
   bool isValidDate(int day, int month, int year) {
     if(year < 0 || year > 9999 || month < 1 || month > 12)
@@ -93,7 +84,7 @@ private:
   std::chrono::system_clock::time_point parseDate(const std::string& dateString) {
     std::tm tm = {};
     std::istringstream ss(dateString);
-    ss >> std::get_time(&tm, inputDateFormatStr.c_str());
+    ss >> std::get_time(&tm, inputFormatStr.c_str());
 
     if (ss.fail()) {
       throw std::runtime_error("Date parse failed");
