@@ -1,4 +1,4 @@
-# Task - Simple Task Manager CLI
+# Terminder - Simple Task Manager CLI
 
 ## Description
 
