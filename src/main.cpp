@@ -29,14 +29,14 @@
 #include <map>
 
 // Change this if you want to save the file to a different location
-const std::string saveFilePath = "/etc/task/savedata.txt";
+const std::string saveFilePath = "./savedata.txt";
 
 void help();
 void add(int, char *[], std::list<Task> &);
 void complete(int, char *[], std::list<Task> &);
 void del(int, char *[], std::list<Task> &);
 void clear(std::list<Task> &);
-void view(std::list<Task> &);
+void list(std::list<Task> &);
 
 void saveTasksToFile(const std::list<Task> &, const std::string &);
 void loadTasksFromFile(std::list<Task> &, const std::string &);
@@ -47,7 +47,7 @@ enum Command {
   DELETE,
   CLEAR,
   HELP,
-  VIEW,
+  LIST,
   UNKNOWN
 };
 
@@ -57,7 +57,7 @@ std::map<std::string, Command> commandMap = {
   {"del", DELETE},
   {"clear", CLEAR},
   {"help", HELP},
-  {"view", VIEW}
+  {"list", LIST}
 };
   
 
@@ -93,8 +93,8 @@ int main(int argc, char *argv[]) {
     case HELP:
       help();
       break;
-    case VIEW:
-      view(tasklist);
+    case LIST:
+      list(tasklist);
       break;
     default:
       std::cerr << "Unknown command: " << modifier << std::endl;
@@ -133,6 +133,7 @@ void loadTasksFromFile(std::list<Task>& tasklist, const std::string& filename) {
 void help() {
     std::cout << "task [option] [arguments]\n"
               << "Options:\n"
+              << "list                    - List all tasks\n"
               << "add [name] [due date]   - Adds a task with optional due date\n"
               << "complete [name]         - Marks a task as complete\n"
               << "del [name]              - Deletes a task, deleted all completed tasks if given no argument\n"
@@ -197,6 +198,6 @@ void clear(std::list<Task> &tasklist) {
   saveTasksToFile(tasklist, saveFilePath);
 }
 
-void view(std::list<Task> &tasklist) {
+void list(std::list<Task> &tasklist) {
   loadTasksFromFile(tasklist, saveFilePath);
 }

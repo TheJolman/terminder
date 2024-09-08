@@ -1,5 +1,5 @@
 # tool macros
-CXX := clang
+CXX := clang++
 CXXFLAGS :=
 DBGFLAGS := -g
 CCOBJFLAGS := $(CXXFLAGS) -c
@@ -10,7 +10,7 @@ OBJ_PATH := obj
 SRC_PATH := src
 DBG_PATH := debug
 
-project_name := makefile-template
+project_name := task
 
 # compile macros
 TARGET_NAME := main
@@ -35,18 +35,18 @@ CLEAN_LIST := $(TARGET) \
 # default rule
 default: makedir all
 
-builder-build :
-	docker build -f builder.Dockerfile -t $(project_name)-builder:latest .
-
-builder-run :
-	docker run \
-		--rm \
-		-it \
-		--platform linux/amd64 \
-		--workdir /builder/mnt \
-		-v ${PWD}:/builder/mnt \
-		$(project_name)-builder:latest \
-		/bin/bash
+# builder-build :
+# 	docker build -f builder.Dockerfile -t $(project_name)-builder:latest .
+#
+# builder-run :
+# 	docker run \
+# 		--rm \
+# 		-it \
+# 		--platform linux/amd64 \
+# 		--workdir /builder/mnt \
+# 		-v ${PWD}:/builder/mnt \
+# 		$(project_name)-builder:latest \
+# 		/bin/bash
 
 
 # non-phony targets

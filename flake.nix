@@ -13,11 +13,12 @@
     in {
       devShell = pkgs.mkShell {
         nativeBuildInputs = with pkgs; [
+          gcc
           clang
           jsoncpp
           clang-tools
           gnumake
-          # cmake
+          cmake
           gdb
           valgrind
           # zstd  # for uncompressing core files
