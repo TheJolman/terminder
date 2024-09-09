@@ -16,22 +16,67 @@
 #include "TaskList.h"
 #include "Task.h"
 #include "Date.h"
+#include <vector>
+
+
+struct Command {
+    std::string name;
+    std::string description;
+    int minArgs;
+    int maxArgs;
+};
+
+
+std::vector<Command> commands {
+    {"add", "Add a new task (usage: add <name> [due_date])", 1, 2},
+    {"list", "List all tasks", 0, 0},
+    {"complete", "Makr a task as complete (uasge: complete <nome>)", 1, 1},
+    {"delete", "Delete a specific task (usage: delete <nome>)", 1 ,1},
+    {"clear", "Delete all tasks", 0, 0},
+    {"help", "Show this help message", 0, 0}
+};
+
 
 void printHelp() {
-    std::cout << "Usage: task [command] [arguments]\n"
-              << "Commands:\n"
-              << "  add <name> [due_date]    - Add a new task (due_date format: MM/DD)\n"
-              << "  list                     - List all tasks\n"
-              << "  complete <name>          - Mark a task as complete\n"
-              << "  delete <name>            - Delete a specific task\n"
-              << "  clear                    - Delete all tasks\n"
-              << "  save                     - Save tasks to file\n"
-              << "  load                     - Load tasks from file\n"
-              << "  help                     - Show this help message\n";
+    std::cout << "Usage task [command] [arguments]\n"
+              << "Commands:\n";
+    for (const auto& cmd : commands) {
+        std::cout << "  " << cmd.name << " - " << cmd.description << "\n";
+    }
 }
 
+
+std::string findClosestCommand(const std::string& input) {
+    auto it = std::find_if(commands.begin(), commands.end(),
+         [&input](const Command& cmd) {
+             return cmd.name.compare(0, input.length(), input) == 0;
+         });
+    return (it != commands.end()) ? it->name : "";
+}
+
+
+std::string findClosestTask(const TaskList& taskList, const std::string& input) {
+    auto tasks = taskList.getList();
+    if (!tasks.has_value()) return "";
+
+    auto it = std::find_if(tasks.value().begin(), tasks.value().end(),
+            [&input](const Task& task) {
+                return task.getName().compare(0, input.length(), input) == 0;
+            });
+    return (it != tasks.value().end()) ? it->getName() : "";
+}
+
+// TODO: add option for clearing completed tasks
 int main(int argc, char* argv[]) {
     TaskList taskList;
+
+
+    try {
+        taskList.loadFromFile();
+        std::cout << "Tasks loaded.\n";
+    } catch (const std::exception& e) {
+        std::cerr << "Error loading tasks: " << e.what() << "\n";
+    }
 
     if (argc < 2) {
         std::cerr << "Error: No command provided.\n";
@@ -39,12 +84,19 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::string command = argv[1];
+    std::string inputCommand = argv[1];
+    std::string command = findClosestCommand(inputCommand);
+
+    if (command.empty()) {
+        std::cerr << "Error: Unknown command '" << inputCommand << "'.\n";
+        printHelp();
+        return 1;
+    }
 
     try {
         if (command == "add") {
-            if (argc < 3) {
-                std::cerr << "Error: Task name required for add command.\n";
+            if (argc < 3 || argc > 4) {
+                std::cerr << "Error: Incorrect number of arguments for add command.\n";
                 return 1;
             }
             std::string name = argv[2];
@@ -66,30 +118,39 @@ int main(int argc, char* argv[]) {
                 std::cout << "No tasks found.\n";
             }
         } else if (command == "complete") {
-            if (argc < 3) {
+            if (argc != 3) {
                 std::cerr << "Error: Task name required for complete command.\n";
                 return 1;
             }
-            std::string name = argv[2];
+            std::string inputName = argv[2];
+            std::string name = findClosestTask(taskList, inputName);
+            if (name.empty()) {
+                std::cerr << "Error: No task found matching '" << inputName << "'.\n";
+                return 1;
+            }
             taskList.completeTask(name);
             std::cout << "Task '" << name << "' marked as complete.\n";
         } else if (command == "delete") {
-            if (argc < 3) {
+            if (argc != 3) {
                 std::cerr << "Error: Task name required for delete command.\n";
                 return 1;
             }
-            std::string name = argv[2];
+            std::string inputName = argv[2];
+            std::string name = findClosestTask(taskList, inputName);
+            if (name.empty()) {
+                std::cerr << "Error: No task found matching '" << inputName << "'.\n";
+                return 1;
+            }
             taskList.removeTask(name);
             std::cout << "Task '" << name << "' deleted.\n";
         } else if (command == "clear") {
-            taskList.removeCompletedTasks(); // This method name might be misleading, update if it actually clears all tasks
+            /*taskList.removeCompletedTasks(); // This method name might be misleading, update if it actually clears all tasks*/
+            try {
+                taskList.removeAllTasks();
+            } catch (const std::exception& e) {
+                std::cerr << "Error: " << e.what() << "\n";
+            }
             std::cout << "All tasks cleared.\n";
-        } else if (command == "save") {
-            taskList.saveToFile();
-            std::cout << "Tasks saved to file.\n";
-        } else if (command == "load") {
-            taskList.loadFromFile();
-            std::cout << "Tasks loaded from file.\n";
         } else if (command == "help" || command == "-h" || command == "--help") {
             printHelp();
         } else {
@@ -99,6 +160,15 @@ int main(int argc, char* argv[]) {
         }
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n";
+        return 1;
+    }
+
+    // save tasks at end
+    try {
+        taskList.saveToFile();
+        std::cout << "Tasks saved.\n";
+    } catch (const std::exception& e) {
+        std::cerr << "Error saving tasks: " << e.what() << "\n";
         return 1;
     }
 

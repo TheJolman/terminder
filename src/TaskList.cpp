@@ -30,37 +30,41 @@ void TaskList::addTask(const std::string& taskName, std::optional<std::string> d
 }
 
 void TaskList::removeTask(const std::string& taskName) noexcept {
-  bool found = false;
-  for (auto it = list.begin(); it != list.end(); it++) {
-    if (taskName == it->getName()) {
-      list.erase(it);
-      found = true;
-    }
-  }
-  if (!found) {
+  auto it = std::find_if(list.begin(), list.end(),
+      [&taskName](const Task& task) { return task.getName() == taskName; });
+  if (it != list.end()) {
+    list.erase(it);
+    std::cout << "Task '" << taskName << "' removed.\n";
+  } else {
     std::cout << "No task with the name '" << taskName << "' found.\n";
   }
 }
 
 void TaskList::completeTask(const std::string& taskName) noexcept {
-  bool found = false;
-  for (Task& task : list) {
-    if (taskName == task.getName()) {
-      task.markComplete();
-    }
-  }
-  if (!found) {
+  auto it = std::find_if(list.begin(), list.end(),
+      [&taskName](const Task& task) { return task.getName() == taskName; });
+  if (it != list.end()) {
+    it->markComplete();
+  } else {
     std::cout << "No task with the name '" << taskName << "' found.\n";
-  }
+  } 
+  /*bool found = false;*/
+  /*for (Task& task : list) {*/
+  /*  if (taskName == task.getName()) {*/
+  /*    task.markComplete();*/
+  /*  }*/
+  /*}*/
+  /*if (!found) {*/
+  /*  std::cout << "No task with the name '" << taskName << "' found.\n";*/
+  /*}*/
 }
 
 void TaskList::removeCompletedTasks() noexcept {
-  for (auto it = list.begin(); it != list.end(); it++) {
-    if (it->isComplete()) {
-      list.erase(it);
-    }
-  }
+  list.remove_if([](const Task& task) { return task.isComplete(); });
+}
 
+void TaskList::removeAllTasks() {
+  list.clear();
 }
 
 
@@ -73,23 +77,35 @@ std::optional<std::list<Task>> TaskList::getList() const noexcept {
 
 
 void TaskList::saveToFile() {
-  std::string fileName = "data.json";
-  std::filesystem::path appDataDir = getSaveLocation();
-  std::filesystem::create_directory(appDataDir);
-  dataFilePath = appDataDir / fileName;
+  setSaveLocation();
 
   std::ofstream outFile(dataFilePath);
+  if (!outFile) {
+    throw std::runtime_error("Unable to open file for writing" + dataFilePath.string());
+  }
   cereal::JSONOutputArchive oarchive(outFile);
-  oarchive(*this); // is this correct?
+  oarchive(*this);
 
 }
 
 void TaskList::loadFromFile() {
+  setSaveLocation();
+
+  if (!std::filesystem::exists(dataFilePath)) {
+    // if the file doesn't exist yet, just return without throwing an exception
+    return;
+  }
   
   std::ifstream inFile(dataFilePath);
-  cereal::JSONInputArchive iarchive(inFile);
-
-  iarchive(*this);
+  if (!inFile) {
+    throw std::runtime_error("Unable to open file for reading" + dataFilePath.string());
+  }
+  try {
+    cereal::JSONInputArchive archive(inFile);
+    archive(*this);
+  } catch (const cereal::Exception& e) {
+    throw std::runtime_error("Error parsing JSON file: " + std::string(e.what()));
+  }
 }
 
 
@@ -110,4 +126,11 @@ std::filesystem::path TaskList::getSaveLocation() {
   }
 
   return dataHome / appName;
+}
+
+void TaskList::setSaveLocation() {
+  std::string fileName = "data.json";
+  std::filesystem::path appDataDir = getSaveLocation();
+  std::filesystem::create_directory(appDataDir);
+  dataFilePath = appDataDir / fileName;
 }

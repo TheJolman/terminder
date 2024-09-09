@@ -26,6 +26,7 @@ public:
   void removeTask(const std::string&) noexcept;
   void completeTask(const std::string&) noexcept;
   void removeCompletedTasks() noexcept;
+  void removeAllTasks();
   std::optional<std::list<Task>> getList() const noexcept;
 
   void saveToFile();
@@ -44,4 +45,5 @@ private:
   }
 
   std::filesystem::path getSaveLocation();
+  void setSaveLocation();
 };

@@ -54,7 +54,7 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, const Task& t) noexcept {
     // TODO: put time until due in terms of days + hours
-    os << t.name << t.dueDate << (t.completionStatus ? "Complete" : "Incomplete");
+    os << t.name << "\t" << (t.completionStatus ? "Complete" : "Incomplete") << "\t" << t.dueDate;
     return os;
   }
 
