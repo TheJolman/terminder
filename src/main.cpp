@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
 
     try {
         taskList.loadFromFile();
-        std::cout << "Tasks loaded.\n";
+        /*std::cout << "Tasks loaded.\n";*/
     } catch (const std::exception& e) {
         std::cerr << "Error loading tasks: " << e.what() << "\n";
     }
@@ -144,7 +144,6 @@ int main(int argc, char* argv[]) {
             taskList.removeTask(name);
             std::cout << "Task '" << name << "' deleted.\n";
         } else if (command == "clear") {
-            /*taskList.removeCompletedTasks(); // This method name might be misleading, update if it actually clears all tasks*/
             try {
                 taskList.removeAllTasks();
             } catch (const std::exception& e) {
@@ -166,7 +165,7 @@ int main(int argc, char* argv[]) {
     // save tasks at end
     try {
         taskList.saveToFile();
-        std::cout << "Tasks saved.\n";
+        /*std::cout << "Tasks saved.\n";*/
     } catch (const std::exception& e) {
         std::cerr << "Error saving tasks: " << e.what() << "\n";
         return 1;

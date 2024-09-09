@@ -31,12 +31,12 @@ void TaskList::addTask(const std::string& taskName, std::optional<std::string> d
 
 void TaskList::removeTask(const std::string& taskName) noexcept {
   auto it = std::find_if(list.begin(), list.end(),
-      [&taskName](const Task& task) { return task.getName() == taskName; });
+      [&taskName](const Task& task) { return task.getName() == taskName && !task.isComplete(); });
   if (it != list.end()) {
     list.erase(it);
-    std::cout << "Task '" << taskName << "' removed.\n";
+    /*std::cout << "Task '" << taskName << "' removed.\n";*/
   } else {
-    std::cout << "No task with the name '" << taskName << "' found.\n";
+    /*std::cout << "No incomplete task with the name '" << taskName << "' found.\n";*/
   }
 }
 
@@ -46,7 +46,7 @@ void TaskList::completeTask(const std::string& taskName) noexcept {
   if (it != list.end()) {
     it->markComplete();
   } else {
-    std::cout << "No task with the name '" << taskName << "' found.\n";
+    /*std::cout << "No task with the name '" << taskName << "' found.\n";*/
   } 
   /*bool found = false;*/
   /*for (Task& task : list) {*/
