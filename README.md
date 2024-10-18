@@ -6,11 +6,14 @@ Terminder is a dead simple task manager cli that I wrote for my own purposes. Us
 
 ## Dependencies
 
-- c++ 17 compiler
-- GNU Make
 - cereal
+- clang++
+- GNU Make
 
 ## Installation
+
+For nix users: `nix build`  
+For everyone else: `make && make install` (installs to ~/.local/usr/bin by default)  
 
 
 ## Usage
@@ -27,7 +30,6 @@ Terminder supports the following commands:
 
 Contributions to Terminder are welcome! I'm not keeping the issues section updated but PRs are welcome.
 
-## License
+## License  
 
-This project is licensed under the GNU General Public License v3.0. See the LICENSE file for more details.
-
+MIT License. Do whatever you want with this.  
