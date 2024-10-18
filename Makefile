@@ -10,7 +10,7 @@ SRC_DIR := src
 INCLUDE_DIR := include
 BUILD_DIR := build
 OBJ_DIR := $(BUILD_DIR)/obj
-INSTALL_DIR := /usr/local/bin
+INSTALL_DIR := $(HOME)/.local/bin
 
 # Source files
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
