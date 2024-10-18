@@ -1,14 +1,12 @@
 { pkgs ? import <nixpkgs> {} }:
 pkgs.mkShell {
   packages = with pkgs; [
-    # for development and building
     clang
     clang-tools
+    lldb
     gnumake
-    gdb
+    bear
     valgrind
-
-    # deps
     cereal
   ];
 

@@ -1,0 +1,36 @@
+[
+  {
+    "arguments": [
+      "/nix/store/4rz4z2bkb68vwbdxcwq0jxh2fyhhiqkh-clang-wrapper-18.1.8/bin/clang++",
+      "-std=c++17",
+      "-Wall",
+      "-Wextra",
+      "-pedantic",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/obj/Date.o",
+      "src/Date.cpp"
+    ],
+    "directory": "/home/josh/Projects/terminder",
+    "file": "/home/josh/Projects/terminder/src/Date.cpp",
+    "output": "/home/josh/Projects/terminder/build/obj/Date.o"
+  },
+  {
+    "arguments": [
+      "/nix/store/4rz4z2bkb68vwbdxcwq0jxh2fyhhiqkh-clang-wrapper-18.1.8/bin/clang++",
+      "-std=c++17",
+      "-Wall",
+      "-Wextra",
+      "-pedantic",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/obj/main.o",
+      "src/main.cpp"
+    ],
+    "directory": "/home/josh/Projects/terminder",
+    "file": "/home/josh/Projects/terminder/src/main.cpp",
+    "output": "/home/josh/Projects/terminder/build/obj/main.o"
+  }
+]

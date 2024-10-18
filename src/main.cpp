@@ -13,9 +13,9 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include "TaskList.h"
-#include "Task.h"
-#include "Date.h"
+#include "TaskList.hpp"
+#include "Task.hpp"
+#include "Date.hpp"
 #include <vector>
 
 

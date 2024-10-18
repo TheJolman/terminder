@@ -1,84 +1,66 @@
-# tool macros
+# Compiler
 CXX := clang++
-CXXFLAGS :=
-DBGFLAGS := -g
-CCOBJFLAGS := $(CXXFLAGS) -c
 
-# path macros
-BIN_PATH := bin
-OBJ_PATH := obj
-SRC_PATH := src
-DBG_PATH := debug
+# Compiler flags
+CXXFLAGS := -std=c++17 -Wall -Wextra -pedantic
+DBGFLAGS := -g $(CXXFLAGS)
 
-project_name := task
+# Directories
+SRC_DIR := src
+INCLUDE_DIR := include
+BUILD_DIR := build
+OBJ_DIR := $(BUILD_DIR)/obj
+INSTALL_DIR := /usr/local/bin
 
-# compile macros
-TARGET_NAME := main
-ifeq ($(OS),Windows_NT)
-	TARGET_NAME := $(addsuffix .exe,$(TARGET_NAME))
-endif
-TARGET := $(BIN_PATH)/$(TARGET_NAME)
-TARGET_DEBUG := $(DBG_PATH)/$(TARGET_NAME)
+# Source files
+SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 
-# src files & obj files
-SRC := $(foreach x, $(SRC_PATH), $(wildcard $(addprefix $(x)/*,.c*)))
-OBJ := $(addprefix $(OBJ_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC)))))
-OBJ_DEBUG := $(addprefix $(DBG_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC)))))
+# Object files
+OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
-# clean files list
-DISTCLEAN_LIST := $(OBJ) \
-                  $(OBJ_DEBUG)
-CLEAN_LIST := $(TARGET) \
-			  $(TARGET_DEBUG) \
-			  $(DISTCLEAN_LIST)
+# Executable name
+TARGET := $(BUILD_DIR)/terminder
+DEBUG_TARGET := $(BUILD_DIR)/terminder_debug
 
-# default rule
-default: makedir all
-
-# builder-build :
-# 	docker build -f builder.Dockerfile -t $(project_name)-builder:latest .
-#
-# builder-run :
-# 	docker run \
-# 		--rm \
-# 		-it \
-# 		--platform linux/amd64 \
-# 		--workdir /builder/mnt \
-# 		-v ${PWD}:/builder/mnt \
-# 		$(project_name)-builder:latest \
-# 		/bin/bash
-
-
-# non-phony targets
-$(TARGET): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
-
-$(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
-	$(CXX) $(CCOBJFLAGS) -o $@ $<
-
-$(DBG_PATH)/%.o: $(SRC_PATH)/%.c*
-	$(CXX) $(CCOBJFLAGS) $(DBGFLAGS) -o $@ $<
-
-$(TARGET_DEBUG): $(OBJ_DEBUG)
-	$(CXX) $(CXXFLAGS) $(DBGFLAGS) $(OBJ_DEBUG) -o $@
-
-# phony rules
-.PHONY: makedir
-makedir:
-	@mkdir -p $(BIN_PATH) $(OBJ_PATH) $(DBG_PATH)
-
-.PHONY: all
+# Default target
 all: $(TARGET)
 
-.PHONY: debug
-debug: $(TARGET_DEBUG)
+# Compile source files into object files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -I$(INCLUDE_DIR) -c $< -o $@
 
-.PHONY: clean
+# Link object files into executable
+$(TARGET): $(OBJS)
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+# Debug build
+debug: $(DEBUG_TARGET)
+
+$(DEBUG_TARGET): $(SRCS)
+	@mkdir -p $(@D)
+	$(CXX) $(DBGFLAGS) -I$(INCLUDE_DIR) $^ -o $@
+
+# Run the program
+run: $(TARGET)
+	./$(TARGET) $(ARGS)
+
+# Debug with with LLDB
+debug-lldb: $(DEBUG_TARGET)
+	lldb $(DEBUG_TARGET)
+
+# Installation
+install: $(TARGET)
+	install -d $(INSTALL_DIR)
+	install -m 755 $(TARGET) $(INSTALL_DIR)
+
+uninstall:
+	rm -f $(INSTALL_DIR)$(notdir $(TARGET))
+
+# Clean build files
 clean:
-	@echo CLEAN $(CLEAN_LIST)
-	@rm -f $(CLEAN_LIST)
+	rm -rf $(BUILD_DIR)
 
-.PHONY: distclean
-distclean:
-	@echo CLEAN $(CLEAN_LIST)
-	@rm -f $(DISTCLEAN_LIST)
+# Phony targets
+.PHONY: all run clean debug debug-lldb install uninstall
