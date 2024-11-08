@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
     }
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << "\n";
-    return 1;
+    return 100;
   }
 
   // save tasks at end
@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
     /*std::cout << "Tasks saved.\n";*/
   } catch (const std::exception &e) {
     std::cerr << "Error saving tasks: " << e.what() << "\n";
-    return 1;
+    return 100;
   }
 
   return 0;

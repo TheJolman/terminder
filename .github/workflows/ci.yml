@@ -28,8 +28,8 @@ jobs:
       
       - name: Run static analysis
         run: |
-          nix develop -c cppcheck .
+          nix develop -c cppcheck --error-exitcode=100 .
       
       - name: Run valgrind
         run: |
-          nix develop -c valgrind --error-exitcode=1 --leak-check=full ./result/bin/terminder
+          nix develop -c valgrind --error-exitcode=100 --leak-check=full ./result/bin/terminder
