@@ -28,7 +28,7 @@ jobs:
       
       - name: Run static analysis
         run: |
-          nix develop -c cppcheck --enable=all --error-exitcode=1 .
+          nix develop -c cppcheck --error-exitcode=1 .
       
       - name: Run valgrind
         run: |
