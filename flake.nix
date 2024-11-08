@@ -1,5 +1,5 @@
 {
-  description = "Terminder - A todo app in cli form";
+  description = "Terminder - A todo app";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -12,12 +12,34 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in
       {
-        packages.default = pkgs.callPackage ./terminder.nix { };
+
+        packages.default = pkgs.stdenv.mkDerivation {
+          name = "terminder";
+          src = ./.;
+
+          buildInputs = with pkgs; [
+            clang
+            cereal
+          ];
+
+          buildPhase = ''
+            make
+          '';
+
+          installPhase = ''
+            mkdir -p $out/bin
+            cp build/terminder $out/bin
+          '';
+
+        };
+
+
 
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
             clang
             cereal
+            valgrind
           ];
         };
       }
