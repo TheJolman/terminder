@@ -4,9 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, pre-commit-hooks }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
@@ -33,12 +34,28 @@
 
         };
 
-        devShell = pkgs.mkShell {
+        checks = {
+          pre-commit-check = pre-commit-hooks.lib.${system}.run {
+            src = ./.;
+            hooks = {
+              clang-format = {
+                enable = true;
+                files = "\\.(cpp|hpp)$";
+              };
+            };
+          };
+        };
+
+        devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             clang
+            clang-tools
             cereal
             valgrind
+            cppcheck
           ];
+
+          inherit (self.checks.${system}.pre-commit-check) shellHook;
         };
       }
     );
