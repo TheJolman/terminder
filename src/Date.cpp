@@ -3,7 +3,7 @@
  * @brief Implementation of the Date class
  * @author Joshua Holman
  *
- * @see Date.h for interface documentation
+ * @see Date.hpp for interface documentation
  */
 
 #include "Date.hpp"
