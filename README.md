@@ -12,9 +12,16 @@ Terminder is a dead simple task manager cli that I wrote for my own purposes. Us
 
 ## Installation
 
-For nix users: `nix build`  
-For everyone else: `make && make install` (installs to ~/.local/usr/bin by default)  
+For nix users: add the following to the inputs of your `flake.nix`
+```nix
+terminder.url = "github:thejolman/terminder"
+```
+And then you can reference it with
+```nix
+terminder.packages.${system}.default
+```
 
+For everyone else: clone and then `make && make install` (installs to ~/.local/usr/bin by default)  
 
 ## Usage
 
