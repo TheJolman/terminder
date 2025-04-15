@@ -2,8 +2,9 @@
 *.out
 task
 *.txt
-build
-result
-debug
-.cache
+build/
+.cache/
+.direnv/
 .pre-commit-config.yaml
+compile_commands.json
+

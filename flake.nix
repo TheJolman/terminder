@@ -2,7 +2,7 @@
   description = "Terminder - A todo app";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     flake-utils.url = "github:numtide/flake-utils";
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
   };
@@ -53,9 +53,18 @@
             cereal
             valgrind
             cppcheck
+            bear
           ];
 
-          inherit (self.checks.${system}.pre-commit-check) shellHook;
+          shellHook = ''
+            ${self.checks.${system}.pre-commit-check}
+
+            if ! test -f "compile_commands.json"; then
+              make clean && bear -- make
+            fi
+
+          '';
+
         };
       }
     );
