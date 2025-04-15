@@ -13,6 +13,7 @@
 #include "Date.hpp"
 #include "Task.hpp"
 #include "TaskList.hpp"
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <string>

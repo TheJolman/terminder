@@ -21,6 +21,7 @@
           buildInputs = with pkgs; [
             clang
             cereal
+            cli11
           ];
 
           buildPhase = ''
@@ -51,6 +52,7 @@
             clang
             clang-tools
             cereal
+            cli11
             valgrind
             cppcheck
             bear
