@@ -19,20 +19,11 @@
           src = ./.;
 
           buildInputs = with pkgs; [
-            clang
             cereal
             cli11
           ];
 
-          buildPhase = ''
-            make
-          '';
-
-          installPhase = ''
-            mkdir -p $out/bin
-            cp build/terminder $out/bin
-          '';
-
+          installPhase = "make install PREFIX=$out";
         };
 
         checks = {

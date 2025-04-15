@@ -3,6 +3,7 @@
 task
 *.txt
 build/
+result/
 .cache/
 .direnv/
 .pre-commit-config.yaml
