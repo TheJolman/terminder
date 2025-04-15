@@ -29,8 +29,8 @@ struct Command {
 std::vector<Command> commands{
     {"add", "Add a new task (usage: add <name> [due_date])", 1, 2},
     {"list", "List all tasks", 0, 0},
-    {"complete", "Makr a task as complete (uasge: complete <nome>)", 1, 1},
-    {"delete", "Delete a specific task (usage: delete <nome>)", 1, 1},
+    {"complete", "Mark a task as complete (usage: complete <task>)", 1, 1},
+    {"delete", "Delete a specific task (usage: delete <task>)", 1, 1},
     {"clear", "Delete all tasks", 0, 0},
     {"help", "Show this help message", 0, 0}};
 
