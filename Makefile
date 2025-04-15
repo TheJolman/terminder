@@ -2,7 +2,7 @@
 CXX := clang++
 
 # Compiler flags
-CXXFLAGS := -std=c++17 -Wall -Wextra -pedantic
+CXXFLAGS := -std=c++20 -Wall -Wextra -pedantic
 DBGFLAGS := -g $(CXXFLAGS)
 
 # Directories

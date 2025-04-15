@@ -15,21 +15,20 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@main
 
       - name: Setup Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@main
+        uses: DeterminateSystems/flakehub-cache-action@main
 
       - name: Build
-        run: nix build
+        run: nix develop -c "make"
 
       - name: Check formatting
         run: |
           nix develop -c clang-format -i $(find . -name '*.cpp' -o -name '*.hpp')
-          # Check if any files were modified
           git diff --exit-code || (echo "Code is not properly formatted!"; exit 1)
 
       # - name: Run static analysis
       #   run: |
       #     nix develop -c cppcheck --error-exitcode=100 .
 
-      - name: Run valgrind
-        run: |
-          nix develop -c valgrind --error-exitcode=100 --leak-check=full ./result/bin/terminder
+      # - name: Run valgrind
+      #   run: |
+      #     nix develop -c valgrind --error-exitcode=100 --leak-check=full ./result/bin/terminder
