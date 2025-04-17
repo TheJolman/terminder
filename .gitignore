@@ -1,7 +1,6 @@
 *.o
 *.out
 task
-*.txt
 build/
 result/
 .cache/
