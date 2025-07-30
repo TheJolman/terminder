@@ -1,14 +1,14 @@
-# Compiler
+SHELL ?= /bin/sh
 CXX ?= clang++
-
-# Compiler flags
-CXXFLAGS ?= -std=c++20 -Wall -Wextra -pedantic
-DBGFLAGS := -g $(CXXFLAGS)
+CXXFLAGS ?= -std=c++20
+RELEASEFLAGS := -O2 $(CXXFLAGS)
+DBGFLAGS := -g -Og -Wall -Wextra -pedantic $(CXXFLAGS)
 
 # Output dirs
-PREFIX ?= /usr/local
+prefix ?= /usr/local
+exec_prefix ?= $(prefix)
+bindir = $(exec_prefix)/bin
 DESTDIR ?=
-BINDIR = $(DESTDIR)$(PREFIX)/bin
 
 # Development dirs
 SRC_DIR := src
@@ -46,17 +46,14 @@ $(DEBUG_TARGET): $(SRCS)
 	@mkdir -p $(@D)
 	$(CXX) $(DBGFLAGS) -I$(INCLUDE_DIR) $^ -o $@
 
-run: $(TARGET)
-	./$(TARGET) $(ARGS)
-
 install: $(TARGET)
-	mkdir -p $(BINDIR)
-	install -m 755 $(TARGET) $(BINDIR)/
+	mkdir -p $(bindir)
+	install -m 0755 $(TARGET) $(bindir)
 
 uninstall:
-	rm -f $(BINDIR)$(notdir $(TARGET))
+	rm -f $(bindir)$(notdir $(TARGET))
 
 clean:
 	rm -rf $(BUILD_DIR)
 
-.PHONY: all run clean debug install uninstall
+.PHONY: all clean debug install uninstall

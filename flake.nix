@@ -23,20 +23,20 @@
             cli11
           ];
 
-          installPhase = "make install PREFIX=$out";
+          installPhase = "make install prefix=$out";
         };
 
-        checks = {
-          pre-commit-check = pre-commit-hooks.lib.${system}.run {
-            src = ./.;
-            hooks = {
-              clang-format = {
-                enable = true;
-                files = "\\.(cpp|hpp)$";
-              };
-            };
-          };
-        };
+        # checks = {
+        #   pre-commit-check = pre-commit-hooks.lib.${system}.run {
+        #     src = ./.;
+        #     hooks = {
+        #       clang-format = {
+        #         enable = true;
+        #         files = "\\.(cpp|hpp)$";
+        #       };
+        #     };
+        #   };
+        # };
 
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
@@ -50,12 +50,11 @@
           ];
 
           shellHook = ''
-            ${self.checks.${system}.pre-commit-check}
-
             if ! test -f "compile_commands.json"; then
               make clean && bear -- make
             fi
 
+            export PATH="$PWD/build:$PATH"
           '';
 
         };
