@@ -39,7 +39,7 @@
         # };
 
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
+          packages = with pkgs; [
             clang
             clang-tools
             cereal
@@ -49,11 +49,13 @@
             bear
           ];
 
+
           shellHook = ''
             if ! test -f "compile_commands.json"; then
               make clean && bear -- make
             fi
 
+            export CXX="clang++"
             export PATH="$PWD/build:$PATH"
           '';
 
