@@ -6,8 +6,8 @@ DBGFLAGS := -g -Og -Wall -Wextra -pedantic $(CXXFLAGS)
 
 # Output dirs
 prefix ?= /usr/local
-exec_prefix ?= $(prefix)
-bindir = $(exec_prefix)/bin
+prefix ?=
+bindir = $(prefix)/bin
 DESTDIR ?=
 
 # Development dirs
@@ -47,11 +47,11 @@ $(DEBUG_TARGET): $(SRCS)
 	$(CXX) $(DBGFLAGS) -I$(INCLUDE_DIR) $^ -o $@
 
 install: $(TARGET)
-	mkdir -p $(bindir)
+	@mkdir -p $(DESTDIR)$(bindir)
 	install -m 0755 $(TARGET) $(bindir)
 
 uninstall:
-	rm -f $(bindir)$(notdir $(TARGET))
+	rm -f $(DESTDIR)$(bindir)/$(notdir $(TARGET))
 
 clean:
 	rm -rf $(BUILD_DIR)
