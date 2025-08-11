@@ -10,7 +10,8 @@
  * See the LICENSE file in the project root for full license information.
  */
 
-#include "Date.hpp"
+// #include "Date.hpp"
+#include "CLI/CLI.hpp"
 #include "Task.hpp"
 #include "TaskList.hpp"
 #include <algorithm>
@@ -26,30 +27,6 @@ struct Command {
   int maxArgs;
 };
 
-std::vector<Command> commands{
-    {"add", "Add a new task (usage: add <name> [due_date])", 1, 2},
-    {"list", "List all tasks", 0, 0},
-    {"complete", "Mark a task as complete (usage: complete <task>)", 1, 1},
-    {"delete", "Delete a specific task (usage: delete <task>)", 1, 1},
-    {"clear", "Delete all tasks", 0, 0},
-    {"help", "Show this help message", 0, 0}};
-
-void printHelp() {
-  std::cout << "Usage task [command] [arguments]\n"
-            << "Commands:\n";
-  for (const auto &cmd : commands) {
-    std::cout << "  " << cmd.name << " - " << cmd.description << "\n";
-  }
-}
-
-std::string findClosestCommand(const std::string &input) {
-  auto it = std::find_if(
-      commands.begin(), commands.end(), [&input](const Command &cmd) {
-        return cmd.name.compare(0, input.length(), input) == 0;
-      });
-  return (it != commands.end()) ? it->name : "";
-}
-
 std::string findClosestTask(const TaskList &taskList,
                             const std::string &input) {
   auto tasks = taskList.getList();
@@ -63,34 +40,30 @@ std::string findClosestTask(const TaskList &taskList,
   return (it != tasks.value().end()) ? it->getName() : "";
 }
 
-// TODO: add option for clearing completed tasks
 int main(int argc, char *argv[]) {
   TaskList taskList;
 
   try {
     taskList.loadFromFile();
-    /*std::cout << "Tasks loaded.\n";*/
   } catch (const std::exception &e) {
     std::cerr << "Error loading tasks: " << e.what() << "\n";
   }
 
-  if (argc < 2) {
-    std::cerr << "Error: No command provided.\n";
-    printHelp();
-    return 1;
-  }
+  CLI::App app{"Terminder: a task tracking CLI"};
+  // Running with no subcommand will do the equivalent of `argv[0] ls`
+  app.require_subcommand(0, 1);
 
-  std::string inputCommand = argv[1];
-  std::string command = findClosestCommand(inputCommand);
+  CLI::App *add =
+      app.add_subcommand("add", "Create a new task with optional due date");
+  CLI::App *ls = app.add_subcommand("ls", "List all tasks");
+  CLI::App *done = app.add_subcommand("done", "Mark a task as complete");
+  CLI::App *rm = app.add_subcommand("rm", "Delete a task");
+  CLI::App *clear = app.add_subcommand("clear", "Remove completed tasks");
 
-  if (command.empty()) {
-    std::cerr << "Error: Unknown command '" << inputCommand << "'.\n";
-    printHelp();
-    return 1;
-  }
+  CLI11_PARSE(app, argc, argv);
 
   try {
-    if (command == "add") {
+    if (*add) {
       if (argc < 3 || argc > 4) {
         std::cerr << "Error: Incorrect number of arguments for add command.\n";
         return 1;
@@ -105,7 +78,7 @@ int main(int argc, char *argv[]) {
         taskList.addTask(name);
         std::cout << "Task '" << name << "' added.\n";
       }
-    } else if (command == "list") {
+    } else if (*ls) {
       auto tasks = taskList.getList();
       if (tasks.has_value()) {
         for (const auto &task : tasks.value()) {
@@ -114,7 +87,7 @@ int main(int argc, char *argv[]) {
       } else {
         std::cout << "No tasks found.\n";
       }
-    } else if (command == "complete") {
+    } else if (*done) {
       if (argc != 3) {
         std::cerr << "Error: Task name required for complete command.\n";
         return 1;
@@ -127,7 +100,7 @@ int main(int argc, char *argv[]) {
       }
       taskList.completeTask(name);
       std::cout << "Task '" << name << "' marked as complete.\n";
-    } else if (command == "delete") {
+    } else if (*rm) {
       if (argc != 3) {
         std::cerr << "Error: Task name required for delete command.\n";
         return 1;
@@ -140,19 +113,13 @@ int main(int argc, char *argv[]) {
       }
       taskList.removeTask(name);
       std::cout << "Task '" << name << "' deleted.\n";
-    } else if (command == "clear") {
+    } else if (*clear) {
       try {
         taskList.removeAllTasks();
       } catch (const std::exception &e) {
         std::cerr << "Error: " << e.what() << "\n";
       }
       std::cout << "All tasks cleared.\n";
-    } else if (command == "help" || command == "-h" || command == "--help") {
-      printHelp();
-    } else {
-      std::cerr << "Error: Unknown command '" << command << "'.\n";
-      printHelp();
-      return 1;
     }
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << "\n";
