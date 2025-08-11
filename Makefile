@@ -1,6 +1,6 @@
 SHELL ?= /bin/sh
 CXX ?= clang++
-CXXFLAGS ?= -std=c++20
+CXXFLAGS ?= -std=c++23
 RELEASEFLAGS := -O2 $(CXXFLAGS)
 DBGFLAGS := -g -Og -Wall -Wextra -pedantic $(CXXFLAGS)
 

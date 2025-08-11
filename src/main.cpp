@@ -19,6 +19,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <print>
 
 struct Command {
   std::string name;
@@ -55,12 +56,23 @@ int main(int argc, char *argv[]) {
 
   CLI::App *add =
       app.add_subcommand("add", "Create a new task with optional due date");
+
+  std::string task_name{};
+  add->add_option("task name", task_name, "Task to add");
+
+  add->callback([&]() {
+    if (!task_name.empty()) {
+      taskList.addTask(task_name);
+      std::println("Task {} added.", task_name);
+
+      // std::cout << "Task '" << task_name << "' added.\n";
+    }
+  });
+
   CLI::App *ls = app.add_subcommand("ls", "List all tasks");
   CLI::App *done = app.add_subcommand("done", "Mark a task as complete");
   CLI::App *rm = app.add_subcommand("rm", "Delete a task");
   CLI::App *clear = app.add_subcommand("clear", "Remove completed tasks");
-
-  CLI11_PARSE(app, argc, argv);
 
   try {
     if (*add) {
@@ -125,6 +137,8 @@ int main(int argc, char *argv[]) {
     std::cerr << "Error: " << e.what() << "\n";
     return 100;
   }
+
+  CLI11_PARSE(app, argc, argv);
 
   // save tasks at end
   try {

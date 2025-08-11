@@ -4,16 +4,17 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     flake-utils.url = "github:numtide/flake-utils";
-    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
   };
 
-  outputs = { self, nixpkgs, flake-utils, pre-commit-hooks }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
+  outputs = {
+    self,
+    nixpkgs,
+    flake-utils,
+  }:
+    flake-utils.lib.eachDefaultSystem (
+      system: let
         pkgs = nixpkgs.legacyPackages.${system};
-      in
-      {
-
+      in {
         packages.default = pkgs.stdenv.mkDerivation {
           name = "terminder";
           src = ./.;
@@ -25,18 +26,6 @@
 
           installPhase = "make install prefix=$out";
         };
-
-        # checks = {
-        #   pre-commit-check = pre-commit-hooks.lib.${system}.run {
-        #     src = ./.;
-        #     hooks = {
-        #       clang-format = {
-        #         enable = true;
-        #         files = "\\.(cpp|hpp)$";
-        #       };
-        #     };
-        #   };
-        # };
 
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
@@ -54,9 +43,9 @@
               make clean && bear -- make
             fi
 
+            export CC="clang++"
             export PATH="$PWD/build:$PATH"
           '';
-
         };
       }
     );
