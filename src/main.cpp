@@ -64,8 +64,6 @@ int main(int argc, char *argv[]) {
     if (!task_name.empty()) {
       taskList.addTask(task_name);
       std::println("Task {} added.", task_name);
-
-      // std::cout << "Task '" << task_name << "' added.\n";
     }
   });
 
@@ -74,69 +72,69 @@ int main(int argc, char *argv[]) {
   CLI::App *rm = app.add_subcommand("rm", "Delete a task");
   CLI::App *clear = app.add_subcommand("clear", "Remove completed tasks");
 
-  try {
-    if (*add) {
-      if (argc < 3 || argc > 4) {
-        std::cerr << "Error: Incorrect number of arguments for add command.\n";
-        return 1;
-      }
-      std::string name = argv[2];
-      if (argc == 4) {
-        std::string dueDate = argv[3];
-        taskList.addTask(name, dueDate);
-        std::cout << "Task '" << name << "' added with due date " << dueDate
-                  << ".\n";
-      } else {
-        taskList.addTask(name);
-        std::cout << "Task '" << name << "' added.\n";
-      }
-    } else if (*ls) {
-      auto tasks = taskList.getList();
-      if (tasks.has_value()) {
-        for (const auto &task : tasks.value()) {
-          std::cout << task << "\n";
-        }
-      } else {
-        std::cout << "No tasks found.\n";
-      }
-    } else if (*done) {
-      if (argc != 3) {
-        std::cerr << "Error: Task name required for complete command.\n";
-        return 1;
-      }
-      std::string inputName = argv[2];
-      std::string name = findClosestTask(taskList, inputName);
-      if (name.empty()) {
-        std::cerr << "Error: No task found matching '" << inputName << "'.\n";
-        return 1;
-      }
-      taskList.completeTask(name);
-      std::cout << "Task '" << name << "' marked as complete.\n";
-    } else if (*rm) {
-      if (argc != 3) {
-        std::cerr << "Error: Task name required for delete command.\n";
-        return 1;
-      }
-      std::string inputName = argv[2];
-      std::string name = findClosestTask(taskList, inputName);
-      if (name.empty()) {
-        std::cerr << "Error: No task found matching '" << inputName << "'.\n";
-        return 1;
-      }
-      taskList.removeTask(name);
-      std::cout << "Task '" << name << "' deleted.\n";
-    } else if (*clear) {
-      try {
-        taskList.removeAllTasks();
-      } catch (const std::exception &e) {
-        std::cerr << "Error: " << e.what() << "\n";
-      }
-      std::cout << "All tasks cleared.\n";
-    }
-  } catch (const std::exception &e) {
-    std::cerr << "Error: " << e.what() << "\n";
-    return 100;
-  }
+  // try {
+  //   if (*add) {
+  //     if (argc < 3 || argc > 4) {
+  //       std::cerr << "Error: Incorrect number of arguments for add command.\n";
+  //       return 1;
+  //     }
+  //     std::string name = argv[2];
+  //     if (argc == 4) {
+  //       std::string dueDate = argv[3];
+  //       taskList.addTask(name, dueDate);
+  //       std::cout << "Task '" << name << "' added with due date " << dueDate
+  //                 << ".\n";
+  //     } else {
+  //       taskList.addTask(name);
+  //       std::cout << "Task '" << name << "' added.\n";
+  //     }
+  //   } else if (*ls) {
+  //     auto tasks = taskList.getList();
+  //     if (tasks.has_value()) {
+  //       for (const auto &task : tasks.value()) {
+  //         std::cout << task << "\n";
+  //       }
+  //     } else {
+  //       std::cout << "No tasks found.\n";
+  //     }
+  //   } else if (*done) {
+  //     if (argc != 3) {
+  //       std::cerr << "Error: Task name required for complete command.\n";
+  //       return 1;
+  //     }
+  //     std::string inputName = argv[2];
+  //     std::string name = findClosestTask(taskList, inputName);
+  //     if (name.empty()) {
+  //       std::cerr << "Error: No task found matching '" << inputName << "'.\n";
+  //       return 1;
+  //     }
+  //     taskList.completeTask(name);
+  //     std::cout << "Task '" << name << "' marked as complete.\n";
+  //   } else if (*rm) {
+  //     if (argc != 3) {
+  //       std::cerr << "Error: Task name required for delete command.\n";
+  //       return 1;
+  //     }
+  //     std::string inputName = argv[2];
+  //     std::string name = findClosestTask(taskList, inputName);
+  //     if (name.empty()) {
+  //       std::cerr << "Error: No task found matching '" << inputName << "'.\n";
+  //       return 1;
+  //     }
+  //     taskList.removeTask(name);
+  //     std::cout << "Task '" << name << "' deleted.\n";
+  //   } else if (*clear) {
+  //     try {
+  //       taskList.removeAllTasks();
+  //     } catch (const std::exception &e) {
+  //       std::cerr << "Error: " << e.what() << "\n";
+  //     }
+  //     std::cout << "All tasks cleared.\n";
+  //   }
+  // } catch (const std::exception &e) {
+  //   std::cerr << "Error: " << e.what() << "\n";
+  //   return 100;
+  // }
 
   CLI11_PARSE(app, argc, argv);
 
