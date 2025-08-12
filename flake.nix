@@ -43,7 +43,7 @@
               make clean && bear -- make
             fi
 
-            export CC="clang++"
+            export CXX="clang++"
             export PATH="$PWD/build:$PATH"
           '';
         };
