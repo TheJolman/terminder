@@ -18,6 +18,7 @@
 #include <filesystem>
 #include <list>
 #include <optional>
+#include <expected>
 
 class TaskList {
 public:
@@ -29,8 +30,8 @@ public:
   void removeAllTasks();
   std::optional<std::list<Task>> getList() const noexcept;
 
-  void saveToFile();
-  void loadFromFile();
+  std::expected<void, std::string> saveToFile();
+  std::expected<void, std::string> loadFromFile();
 
 private:
   std::list<Task> list;

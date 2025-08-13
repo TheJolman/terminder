@@ -15,18 +15,15 @@
 #include <filesystem>
 #include <fstream>
 #include <optional>
+#include <print>
 
 void TaskList::addTask(const std::string &taskName,
                        std::optional<std::string> dueDate) {
   if (dueDate.has_value()) {
-    /*std::unique_ptr<Task> taskPtr(new Task(taskName, dueDate.value()));*/
     list.emplace_front(Task(taskName, dueDate.value()));
   } else {
-    /*std::unique_ptr<Task> taskPtr(new Task(taskName));*/
     list.emplace_front(Task(taskName));
   }
-
-  /*list.emplace_front(taskPtr);*/
 }
 
 void TaskList::removeTask(const std::string &taskName) noexcept {
@@ -36,10 +33,6 @@ void TaskList::removeTask(const std::string &taskName) noexcept {
       });
   if (it != list.end()) {
     list.erase(it);
-    /*std::cout << "Task '" << taskName << "' removed.\n";*/
-  } else {
-    /*std::cout << "No incomplete task with the name '" << taskName << "'
-     * found.\n";*/
   }
 }
 
@@ -50,8 +43,6 @@ void TaskList::completeTask(const std::string &taskName) noexcept {
       });
   if (it != list.end()) {
     it->markComplete();
-  } else {
-    /*std::cout << "No task with the name '" << taskName << "' found.\n";*/
   }
 }
 
@@ -68,38 +59,40 @@ std::optional<std::list<Task>> TaskList::getList() const noexcept {
   return list;
 }
 
-void TaskList::saveToFile() {
+std::expected<void, std::string> TaskList::saveToFile() {
   setSaveLocation();
 
   std::ofstream outFile(dataFilePath);
   if (!outFile) {
-    throw std::runtime_error("Unable to open file for writing" +
-                             dataFilePath.string());
+    return std::unexpected("unable to open file for writing:" +
+                           dataFilePath.string());
   }
   cereal::JSONOutputArchive oarchive(outFile);
   oarchive(*this);
+  return {};
 }
 
-void TaskList::loadFromFile() {
+std::expected<void, std::string> TaskList::loadFromFile() {
   setSaveLocation();
 
   if (!std::filesystem::exists(dataFilePath)) {
     // if the file doesn't exist yet, just return without throwing an exception
-    return;
+    return {};
   }
 
   std::ifstream inFile(dataFilePath);
   if (!inFile) {
-    throw std::runtime_error("Unable to open file for reading" +
-                             dataFilePath.string());
+    return std::unexpected("unable to open file for reading: " +
+                           dataFilePath.string());
   }
   try {
     cereal::JSONInputArchive archive(inFile);
     archive(*this);
   } catch (const cereal::Exception &e) {
-    throw std::runtime_error("Error parsing JSON file: " +
-                             std::string(e.what()));
+    return std::unexpected("Error parsing JSON file: " + std::string(e.what()));
   }
+
+  return {};
 }
 
 std::filesystem::path TaskList::getSaveLocation() {
@@ -111,10 +104,10 @@ std::filesystem::path TaskList::getSaveLocation() {
     dataHome = envDataHome;
   } else {
     const char *home = std::getenv("HOME");
-    if (home == nullptr) {
-      throw std::runtime_error("HOME environment variable not set");
+    if (!home) {
+      std::println(stderr, "[ERROR] HOME environment variable is not set. exiting...");
+      std::exit(1);
     }
-
     dataHome = std::filesystem::path(home) / ".local" / "share";
   }
 
