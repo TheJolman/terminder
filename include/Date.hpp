@@ -16,7 +16,7 @@
 #include <cereal/types/chrono.hpp>
 #include <chrono>
 #include <iomanip>
-#include <iostream>
+#include <format>
 #include <sstream>
 
 /**
@@ -58,10 +58,6 @@ public:
    */
   static std::string toString(const Date &date) noexcept;
 
-  /**
-   * @brief Used for printing date objects with std::cout
-   */
-  friend std::ostream &operator<<(std::ostream &os, const Date &d) noexcept;
 
 private:
   std::chrono::system_clock::time_point date;
@@ -79,4 +75,15 @@ private:
    */
   std::chrono::system_clock::time_point
   parseDate(const std::string &dateString);
+};
+
+template <>
+struct std::formatter<Date> {
+  constexpr auto parse(std::format_parse_context& ctx) {
+    return ctx.begin();
+  }
+
+  auto format(const Date& d, std::format_context& ctx) const {
+    return std::format_to(ctx.out(), "{}", Date::toString(d));
+  }
 };

@@ -15,7 +15,7 @@
 #include <cereal/access.hpp>
 #include <cereal/archives/json.hpp>
 #include <cereal/types/string.hpp>
-#include <iostream>
+#include <format>
 #include <sstream>
 #include <string>
 
@@ -58,12 +58,6 @@ public:
     return timeUntilDue.count();
   } // maybe needs to be long long
 
-  friend std::ostream &operator<<(std::ostream &os, const Task &t) noexcept {
-    // TODO: put time until due in terms of days + hours
-    os << t.name << "\t" << (t.completionStatus ? "Complete" : "Incomplete")
-       << "\t" << t.dueDate;
-    return os;
-  }
 
 private:
   friend class cereal::access;
@@ -77,4 +71,18 @@ private:
   bool completionStatus;
   Date dueDate;
   std::chrono::hours timeUntilDue;
+};
+
+template <>
+struct std::formatter<Task> {
+  constexpr auto parse(std::format_parse_context& ctx) {
+    return ctx.begin();
+  }
+
+  auto format(const Task& t, std::format_context& ctx) const {
+    return std::format_to(ctx.out(), "{}\t{}\t{}", 
+                         t.getName(), 
+                         t.isComplete() ? "Complete" : "Incomplete",
+                         t.getDueDate());
+  }
 };

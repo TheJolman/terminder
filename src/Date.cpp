@@ -22,10 +22,6 @@ std::string Date::toString(const Date &date) noexcept {
   return oss.str();
 }
 
-std::ostream &operator<<(std::ostream &os, const Date &d) noexcept {
-  os << Date::toString(d);
-  return os;
-}
 
 std::chrono::system_clock::time_point
 Date::parseDate(const std::string &dateString) {

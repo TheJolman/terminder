@@ -17,7 +17,6 @@
 #include <algorithm>
 #include <cstdio>
 #include <expected>
-#include <iostream>
 #include <print>
 #include <sstream>
 #include <string>
@@ -97,7 +96,7 @@ int main(int argc, char *argv[]) {
     auto tasks = taskList.getList();
     if (tasks.has_value()) {
       for (const auto &task : tasks.value()) {
-        std::cout << task << "\n";
+        std::println("{}", task);
       }
       return;
     }
