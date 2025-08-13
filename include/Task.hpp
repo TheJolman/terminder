@@ -15,7 +15,8 @@
 #include <cereal/access.hpp>
 #include <cereal/archives/json.hpp>
 #include <cereal/types/string.hpp>
-#include <iostream>
+#include <expected>
+#include <format>
 #include <sstream>
 #include <string>
 
@@ -33,20 +34,41 @@ class Task {
   // TODO: Get time until due
 public:
   // Default constructor
-  Task()
-      : name(""), completionStatus(false), timeUntilDue(std::chrono::hours(0)) {
-  }
+  Task() : name(""), completionStatus(false), timeUntilDue(std::chrono::hours(0)) {}
 
   // Constructor with name
   Task(const std::string &name)
-      : name(name), completionStatus(false),
-        timeUntilDue(std::chrono::hours(0)) {}
+      : name(name), completionStatus(false), timeUntilDue(std::chrono::hours(0)) {}
 
   // Constructor with name and due date
-  Task(std::string name, std::string dueDateStr)
-      : name(name), completionStatus(false), dueDate(Date(dueDateStr)) {
+  // Task(std::string name, std::string dueDateStr)
+  //     : name(name), completionStatus(false), dueDate(Date(dueDateStr)) {
+  //   Date initialDate;
+  //   timeUntilDue = dueDate - initialDate;
+  // }
+
+  /**
+   * @brief Creates a Task with proper error handling for date parsing
+   * @param name Task name
+   * @param dueDateStr Due date string
+   * @return Expected Task or error message
+   */
+  static std::expected<Task, std::string> create(const std::string &name,
+                                                 const std::string &dueDateStr) {
+    auto dateResult = Date::fromString(dueDateStr);
+    if (!dateResult) {
+      return std::unexpected(dateResult.error());
+    }
+
+    Task task;
+    task.name = name;
+    task.completionStatus = false;
+    task.dueDate = dateResult.value();
+
     Date initialDate;
-    timeUntilDue = dueDate - initialDate;
+    task.timeUntilDue = task.dueDate - initialDate;
+
+    return task;
   }
 
   void markComplete() { completionStatus = true; }
@@ -54,16 +76,7 @@ public:
   std::string getName() const { return name; }
   bool isComplete() const { return completionStatus; }
   Date getDueDate() const { return dueDate; }
-  int getTimeUntilDue() const {
-    return timeUntilDue.count();
-  } // maybe needs to be long long
-
-  friend std::ostream &operator<<(std::ostream &os, const Task &t) noexcept {
-    // TODO: put time until due in terms of days + hours
-    os << t.name << "\t" << (t.completionStatus ? "Complete" : "Incomplete")
-       << "\t" << t.dueDate;
-    return os;
-  }
+  int getTimeUntilDue() const { return timeUntilDue.count(); } // maybe needs to be long long
 
 private:
   friend class cereal::access;
@@ -77,4 +90,13 @@ private:
   bool completionStatus;
   Date dueDate;
   std::chrono::hours timeUntilDue;
+};
+
+template <> struct std::formatter<Task> {
+  constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
+
+  auto format(const Task &t, std::format_context &ctx) const {
+    return std::format_to(ctx.out(), "{}\t{}\t{}", t.getName(),
+                          t.isComplete() ? "Complete" : "Incomplete", t.getDueDate());
+  }
 };

@@ -7,7 +7,8 @@ Terminder is a dead simple task manager cli that I wrote for my own purposes. Us
 ## Dependencies
 
 - cereal
-- clang++
+- cli11
+- recent version of clang++ (this project uses c++23)
 - GNU Make
 
 ## Installation
@@ -18,12 +19,12 @@ terminder.url = "github:thejolman/terminder"
 ```
 And then you can reference it with the following anywhere in your config
 ```nix
-pkgs.inputs.terminder.packages.${system}.default
+inputs.terminder.packages.${system}.default
 ```
 
 For everyone else: install with the Makefile
 ```sh
-make && make install
+make && sudo make install
 ```
 You can adjust the install location like:
 ```sh
@@ -33,13 +34,23 @@ make install PREFIX=~/.local
 
 ## Usage
 
-Terminder supports the following commands:
+```
+Terminder: a task tracking CLI
 
-- **Add a task**: `task add <mm/dd>` - Adds a new task with an optional due date.
-- **Complete a task**: `task complete <task name>` - Marks a specified task as complete.
-- **Delete a task**: `task delete <task name>` - Removes a specified task from the list.
-- **View tasks**: `task list` - Displays all tasks.
-- **Help**: `task help` - Displays available commands.
+
+terminder [OPTIONS] SUBCOMMAND
+
+
+OPTIONS:
+  -h,     --help              Print this help message and exit
+
+SUBCOMMANDS:
+  add                         Create a new task with optional due date
+  ls                          List all tasks
+  done                        Mark a task as complete
+  rm                          Delete a task
+  clear                       Remove completed tasks
+```
 
 ## Contributing
 

@@ -15,22 +15,23 @@
 #include "Task.hpp"
 #include <cereal/access.hpp>
 #include <cereal/types/list.hpp>
+#include <expected>
 #include <filesystem>
 #include <list>
 #include <optional>
 
 class TaskList {
 public:
-  void addTask(const std::string &taskName,
-               std::optional<std::string> dueDate = std::nullopt);
+  std::expected<void, std::string> addTask(const std::string &taskName,
+                                           std::optional<std::string> dueDate = std::nullopt);
   void removeTask(const std::string &) noexcept;
   void completeTask(const std::string &) noexcept;
   void removeCompletedTasks() noexcept;
   void removeAllTasks();
   std::optional<std::list<Task>> getList() const noexcept;
 
-  void saveToFile();
-  void loadFromFile();
+  std::expected<void, std::string> saveToFile();
+  std::expected<void, std::string> loadFromFile();
 
 private:
   std::list<Task> list;

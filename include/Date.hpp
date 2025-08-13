@@ -15,8 +15,9 @@
 #include <cereal/access.hpp>
 #include <cereal/types/chrono.hpp>
 #include <chrono>
+#include <expected>
+#include <format>
 #include <iomanip>
-#include <iostream>
 #include <sstream>
 
 /**
@@ -38,8 +39,16 @@ public:
   /**
    * @brief Constructs a date object with provided date
    * @param dateStr date provided as a string
+   * @note This constructor will create a default date if parsing fails
    */
-  Date(const std::string &dateStr) : date(parseDate(dateStr)) {}
+  Date(const std::string &dateStr) {
+    auto result = parseDate(dateStr);
+    if (result) {
+      date = result.value();
+    } else {
+      date = std::chrono::system_clock::now(); // fallback to current time
+    }
+  }
 
   /**
    * @brief Compares two date objects. Used for sorting
@@ -59,9 +68,11 @@ public:
   static std::string toString(const Date &date) noexcept;
 
   /**
-   * @brief Used for printing date objects with std::cout
+   * @brief Creates a Date from a string with error handling
+   * @param dateStr date provided as a string
+   * @return Expected Date object or error message
    */
-  friend std::ostream &operator<<(std::ostream &os, const Date &d) noexcept;
+  static std::expected<Date, std::string> fromString(const std::string &dateStr);
 
 private:
   std::chrono::system_clock::time_point date;
@@ -76,7 +87,16 @@ private:
    * @brief Used in the constructor to convert date strings to
    * std::chrono::system_clock::time_point
    * @param dateString User provided date string in the form of mm/dd
+   * @return Expected time_point or error message
    */
-  std::chrono::system_clock::time_point
+  static std::expected<std::chrono::system_clock::time_point, std::string>
   parseDate(const std::string &dateString);
+};
+
+template <> struct std::formatter<Date> {
+  constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
+
+  auto format(const Date &d, std::format_context &ctx) const {
+    return std::format_to(ctx.out(), "{}", Date::toString(d));
+  }
 };
