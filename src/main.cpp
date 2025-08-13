@@ -16,6 +16,7 @@
 #include "TaskList.hpp"
 #include <algorithm>
 #include <cstdio>
+#include <expected>
 #include <iostream>
 #include <print>
 #include <sstream>
@@ -38,17 +39,21 @@ struct Command {
   int maxArgs;
 };
 
-std::string find_task(const TaskList &taskList, const std::string &input) {
-  // TODO: This should return type Task
+std::expected<Task, std::string> find_task(const TaskList &taskList,
+                                           const std::string &input) {
   auto tasks = taskList.getList();
-  if (!tasks.has_value())
-    return "";
+  if (!tasks.has_value()) {
+    return std::unexpected("task list could not be retrieved");
+  }
 
   auto it = std::find_if(
       tasks.value().begin(), tasks.value().end(), [&input](const Task &task) {
         return task.getName().compare(0, input.length(), input) == 0;
       });
-  return (it != tasks.value().end()) ? it->getName() : "";
+  if (it == tasks.value().end()) {
+    return std::unexpected("could not find task");
+  }
+  return *it;
 }
 
 int main(int argc, char *argv[]) {
@@ -58,7 +63,6 @@ int main(int argc, char *argv[]) {
     taskList.loadFromFile();
   } catch (const std::exception &e) {
     util::error("couldn't load tasks: {}", e.what());
-    // std::cerr << "Error loading tasks: " << e.what() << "\n";
   }
 
   CLI::App app{"Terminder: a task tracking CLI"};
@@ -77,9 +81,7 @@ int main(int argc, char *argv[]) {
 
   add->callback([&]() {
     if (task_name.empty()) {
-      std::println(
-          std::cerr,
-          "ERROR: A name is required."); // is there a CLI11 way to do this?
+      util::error("a name is required");
       return;
     } else if (date_str.empty()) {
       taskList.addTask(task_name);
@@ -111,13 +113,13 @@ int main(int argc, char *argv[]) {
       return;
     }
 
-    std::string name = find_task(taskList, task_name);
-    if (name.empty()) {
+    auto task = find_task(taskList, task_name);
+    if (!task) {
       util::error("no task found matching {}", task_name);
       return;
     }
-    taskList.completeTask(name);
-    std::println("Task '{}' marked as complete.", name);
+    taskList.completeTask(task.value().getName());
+    std::println("Task '{}' marked as complete.", task.value().getName());
   });
 
   CLI::App *rm = app.add_subcommand("rm", "Delete a task");
@@ -128,13 +130,13 @@ int main(int argc, char *argv[]) {
       return;
     }
 
-    std::string name = find_task(taskList, task_name);
-    if (name.empty()) {
+    auto task = find_task(taskList, task_name);
+    if (!task) {
       util::error("no task found matching {}", task_name);
       return;
     }
-    taskList.removeTask(name);
-    std::println("Task '{}' marked as deleted.", name);
+    taskList.removeTask(task.value().getName());
+    std::println("Task '{}' marked as deleted.", task.value().getName());
   });
 
   CLI::App *clear = app.add_subcommand("clear", "Remove completed tasks");
@@ -152,9 +154,8 @@ int main(int argc, char *argv[]) {
   // save tasks at end
   try {
     taskList.saveToFile();
-    /*std::cout << "Tasks saved.\n";*/
   } catch (const std::exception &e) {
-    std::cerr << "Error saving tasks: " << e.what() << "\n";
+    util::error("could not save tasks: {}", e.what());
     return 100;
   }
 
