@@ -1,8 +1,7 @@
 *.o
 *.out
-task
 build/
-result/
+result
 .cache/
 .direnv/
 .pre-commit-config.yaml
