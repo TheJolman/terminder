@@ -14,16 +14,14 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
 
-      - name: Setup Nix Cache
-        uses: DeterminateSystems/flakehub-cache-action@main
-
       - name: Build
         run: nix develop -c "make"
 
       - name: Check formatting
-        run: |
-          nix develop -c clang-format -i $(find . -name '*.cpp' -o -name '*.hpp')
-          git diff --exit-code || (echo "Code is not properly formatted!"; exit 1)
+        run: nix develop -c bash -c "make format && git diff --exit-code"
+
+      - name: Clang tidy
+        run: nix develop -c run-clang-tidy -quiet
 
       # - name: Run static analysis
       #   run: |

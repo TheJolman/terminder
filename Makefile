@@ -66,4 +66,11 @@ clean:
 format:
 	clang-format -i $(SRCS) $(wildcard $(INCLUDE_DIR)/*.hpp)
 
+tidy:
+	run-clang-tidy
+
+check:
+	cppcheck -I include/ src/*
+
+
 .PHONY: all clean install uninstall format
