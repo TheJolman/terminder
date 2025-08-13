@@ -2,7 +2,7 @@
   description = "Terminder - A todo app";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -29,8 +29,8 @@
 
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
-            clang
-            clang-tools
+            llvmPackages_20.libcxxClang
+            llvmPackages_20.clang-tools
             cereal
             cli11
             valgrind
