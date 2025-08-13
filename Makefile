@@ -56,4 +56,7 @@ uninstall:
 clean:
 	rm -rf $(BUILD_DIR)
 
-.PHONY: all clean debug install uninstall
+format:
+	clang-format -i $(SRCS) $(wildcard $(INCLUDE_DIR)/*.hpp)
+
+.PHONY: all clean debug install uninstall format

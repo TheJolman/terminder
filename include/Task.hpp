@@ -58,7 +58,6 @@ public:
     return timeUntilDue.count();
   } // maybe needs to be long long
 
-
 private:
   friend class cereal::access;
 
@@ -73,16 +72,12 @@ private:
   std::chrono::hours timeUntilDue;
 };
 
-template <>
-struct std::formatter<Task> {
-  constexpr auto parse(std::format_parse_context& ctx) {
-    return ctx.begin();
-  }
+template <> struct std::formatter<Task> {
+  constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
 
-  auto format(const Task& t, std::format_context& ctx) const {
-    return std::format_to(ctx.out(), "{}\t{}\t{}", 
-                         t.getName(), 
-                         t.isComplete() ? "Complete" : "Incomplete",
-                         t.getDueDate());
+  auto format(const Task &t, std::format_context &ctx) const {
+    return std::format_to(ctx.out(), "{}\t{}\t{}", t.getName(),
+                          t.isComplete() ? "Complete" : "Incomplete",
+                          t.getDueDate());
   }
 };
