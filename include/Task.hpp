@@ -44,11 +44,11 @@ public:
         timeUntilDue(std::chrono::hours(0)) {}
 
   // Constructor with name and due date
-  Task(std::string name, std::string dueDateStr)
-      : name(name), completionStatus(false), dueDate(Date(dueDateStr)) {
-    Date initialDate;
-    timeUntilDue = dueDate - initialDate;
-  }
+  // Task(std::string name, std::string dueDateStr)
+  //     : name(name), completionStatus(false), dueDate(Date(dueDateStr)) {
+  //   Date initialDate;
+  //   timeUntilDue = dueDate - initialDate;
+  // }
 
   /**
    * @brief Creates a Task with proper error handling for date parsing
