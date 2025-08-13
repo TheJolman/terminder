@@ -17,13 +17,19 @@
 #include <optional>
 #include <print>
 
-void TaskList::addTask(const std::string &taskName,
-                       std::optional<std::string> dueDate) {
+std::expected<void, std::string>
+TaskList::addTask(const std::string &taskName,
+                  std::optional<std::string> dueDate) {
   if (dueDate.has_value()) {
-    list.emplace_front(Task(taskName, dueDate.value()));
+    auto taskResult = Task::create(taskName, dueDate.value());
+    if (!taskResult) {
+      return std::unexpected(taskResult.error());
+    }
+    list.emplace_front(taskResult.value());
   } else {
     list.emplace_front(Task(taskName));
   }
+  return {};
 }
 
 void TaskList::removeTask(const std::string &taskName) noexcept {
@@ -105,7 +111,8 @@ std::filesystem::path TaskList::getSaveLocation() {
   } else {
     const char *home = std::getenv("HOME");
     if (!home) {
-      std::println(stderr, "[ERROR] HOME environment variable is not set. exiting...");
+      std::println(stderr,
+                   "[ERROR] HOME environment variable is not set. exiting...");
       std::exit(1);
     }
     dataHome = std::filesystem::path(home) / ".local" / "share";

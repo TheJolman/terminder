@@ -15,6 +15,7 @@
 #include <cereal/access.hpp>
 #include <cereal/archives/json.hpp>
 #include <cereal/types/string.hpp>
+#include <expected>
 #include <format>
 #include <sstream>
 #include <string>
@@ -47,6 +48,30 @@ public:
       : name(name), completionStatus(false), dueDate(Date(dueDateStr)) {
     Date initialDate;
     timeUntilDue = dueDate - initialDate;
+  }
+
+  /**
+   * @brief Creates a Task with proper error handling for date parsing
+   * @param name Task name
+   * @param dueDateStr Due date string
+   * @return Expected Task or error message
+   */
+  static std::expected<Task, std::string>
+  create(const std::string &name, const std::string &dueDateStr) {
+    auto dateResult = Date::fromString(dueDateStr);
+    if (!dateResult) {
+      return std::unexpected(dateResult.error());
+    }
+
+    Task task;
+    task.name = name;
+    task.completionStatus = false;
+    task.dueDate = dateResult.value();
+
+    Date initialDate;
+    task.timeUntilDue = task.dueDate - initialDate;
+
+    return task;
   }
 
   void markComplete() { completionStatus = true; }

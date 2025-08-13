@@ -58,10 +58,9 @@ std::expected<Task, std::string> find_task(const TaskList &taskList,
 int main(int argc, char *argv[]) {
   TaskList taskList;
 
-  try {
-    taskList.loadFromFile();
-  } catch (const std::exception &e) {
-    util::error("couldn't load tasks: {}", e.what());
+  auto loadResult = taskList.loadFromFile();
+  if (!loadResult) {
+    util::error("couldn't load tasks: {}", loadResult.error());
   }
 
   CLI::App app{"Terminder: a task tracking CLI"};
@@ -82,13 +81,21 @@ int main(int argc, char *argv[]) {
     if (task_name.empty()) {
       util::error("a name is required");
       return;
-    } else if (date_str.empty()) {
-      taskList.addTask(task_name);
-      std::println("Task {} added.", task_name);
+    }
+
+    auto addResult = date_str.empty() ? taskList.addTask(task_name)
+                                      : taskList.addTask(task_name, date_str);
+
+    if (!addResult) {
+      util::error("failed to add task: {}", addResult.error());
       return;
     }
-    taskList.addTask(task_name, date_str);
-    std::println("Task {} added with due date {}.", task_name, date_str);
+
+    if (date_str.empty()) {
+      std::println("Task {} added.", task_name);
+    } else {
+      std::println("Task {} added with due date {}.", task_name, date_str);
+    }
   });
 
   CLI::App *ls = app.add_subcommand("ls", "List all tasks");
@@ -140,21 +147,16 @@ int main(int argc, char *argv[]) {
 
   CLI::App *clear = app.add_subcommand("clear", "Remove completed tasks");
   clear->callback([&]() {
-    try {
-      taskList.removeAllTasks();
-    } catch (const std::exception &e) {
-      util::error("could not remove all tasks: {}", e.what());
-    }
+    taskList.removeAllTasks();
     std::println("All tasks cleared.");
   });
 
   CLI11_PARSE(app, argc, argv);
 
   // save tasks at end
-  try {
-    taskList.saveToFile();
-  } catch (const std::exception &e) {
-    util::error("could not save tasks: {}", e.what());
+  auto saveResult = taskList.saveToFile();
+  if (!saveResult) {
+    util::error("could not save tasks: {}", saveResult.error());
     return 100;
   }
 
