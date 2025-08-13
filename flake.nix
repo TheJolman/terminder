@@ -31,12 +31,15 @@
           buildInputs = with pkgs; [
             llvmPackages_20.libcxxClang
             llvmPackages_20.clang-tools
+            llvmPackages_20.lldb
             cereal
             cli11
             valgrind
             cppcheck
             bear
           ];
+
+          CXX = "clang++";
 
           shellHook = ''
             if ! test -f "compile_commands.json"; then

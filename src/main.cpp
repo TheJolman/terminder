@@ -15,11 +15,21 @@
 #include "Task.hpp"
 #include "TaskList.hpp"
 #include <algorithm>
+#include <cstdio>
 #include <iostream>
+#include <print>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <print>
+
+namespace util {
+template <typename... Args>
+static void error(std::format_string<Args...> fmt, Args &&...args) {
+  std::println(stderr, "[ERROR] {}",
+               std::format(fmt, std::forward<Args>(args)...));
+}
+
+} // namespace util
 
 struct Command {
   std::string name;
@@ -28,8 +38,8 @@ struct Command {
   int maxArgs;
 };
 
-std::string findClosestTask(const TaskList &taskList,
-                            const std::string &input) {
+std::string find_task(const TaskList &taskList, const std::string &input) {
+  // TODO: This should return type Task
   auto tasks = taskList.getList();
   if (!tasks.has_value())
     return "";
@@ -47,94 +57,95 @@ int main(int argc, char *argv[]) {
   try {
     taskList.loadFromFile();
   } catch (const std::exception &e) {
-    std::cerr << "Error loading tasks: " << e.what() << "\n";
+    util::error("couldn't load tasks: {}", e.what());
+    // std::cerr << "Error loading tasks: " << e.what() << "\n";
   }
 
   CLI::App app{"Terminder: a task tracking CLI"};
-  // Running with no subcommand will do the equivalent of `argv[0] ls`
-  app.require_subcommand(0, 1);
+  // maybe make running with no subcommand will do the equivalent of `argv[0]
+  // ls`
+  app.require_subcommand(1);
 
   CLI::App *add =
       app.add_subcommand("add", "Create a new task with optional due date");
 
   std::string task_name{};
-  add->add_option("task name", task_name, "Task to add");
+  add->add_option("name", task_name, "Task to add");
+
+  std::string date_str{};
+  add->add_option("--date,-d", date_str, "Optional date");
 
   add->callback([&]() {
-    if (!task_name.empty()) {
+    if (task_name.empty()) {
+      std::println(
+          std::cerr,
+          "ERROR: A name is required."); // is there a CLI11 way to do this?
+      return;
+    } else if (date_str.empty()) {
       taskList.addTask(task_name);
       std::println("Task {} added.", task_name);
+      return;
     }
+    taskList.addTask(task_name, date_str);
+    std::println("Task {} added with due date {}.", task_name, date_str);
   });
 
   CLI::App *ls = app.add_subcommand("ls", "List all tasks");
-  CLI::App *done = app.add_subcommand("done", "Mark a task as complete");
-  CLI::App *rm = app.add_subcommand("rm", "Delete a task");
-  CLI::App *clear = app.add_subcommand("clear", "Remove completed tasks");
+  ls->callback([&]() {
+    auto tasks = taskList.getList();
+    if (tasks.has_value()) {
+      for (const auto &task : tasks.value()) {
+        std::cout << task << "\n";
+      }
+      return;
+    }
+    std::println("No tasks found.");
+  });
 
-  // try {
-  //   if (*add) {
-  //     if (argc < 3 || argc > 4) {
-  //       std::cerr << "Error: Incorrect number of arguments for add command.\n";
-  //       return 1;
-  //     }
-  //     std::string name = argv[2];
-  //     if (argc == 4) {
-  //       std::string dueDate = argv[3];
-  //       taskList.addTask(name, dueDate);
-  //       std::cout << "Task '" << name << "' added with due date " << dueDate
-  //                 << ".\n";
-  //     } else {
-  //       taskList.addTask(name);
-  //       std::cout << "Task '" << name << "' added.\n";
-  //     }
-  //   } else if (*ls) {
-  //     auto tasks = taskList.getList();
-  //     if (tasks.has_value()) {
-  //       for (const auto &task : tasks.value()) {
-  //         std::cout << task << "\n";
-  //       }
-  //     } else {
-  //       std::cout << "No tasks found.\n";
-  //     }
-  //   } else if (*done) {
-  //     if (argc != 3) {
-  //       std::cerr << "Error: Task name required for complete command.\n";
-  //       return 1;
-  //     }
-  //     std::string inputName = argv[2];
-  //     std::string name = findClosestTask(taskList, inputName);
-  //     if (name.empty()) {
-  //       std::cerr << "Error: No task found matching '" << inputName << "'.\n";
-  //       return 1;
-  //     }
-  //     taskList.completeTask(name);
-  //     std::cout << "Task '" << name << "' marked as complete.\n";
-  //   } else if (*rm) {
-  //     if (argc != 3) {
-  //       std::cerr << "Error: Task name required for delete command.\n";
-  //       return 1;
-  //     }
-  //     std::string inputName = argv[2];
-  //     std::string name = findClosestTask(taskList, inputName);
-  //     if (name.empty()) {
-  //       std::cerr << "Error: No task found matching '" << inputName << "'.\n";
-  //       return 1;
-  //     }
-  //     taskList.removeTask(name);
-  //     std::cout << "Task '" << name << "' deleted.\n";
-  //   } else if (*clear) {
-  //     try {
-  //       taskList.removeAllTasks();
-  //     } catch (const std::exception &e) {
-  //       std::cerr << "Error: " << e.what() << "\n";
-  //     }
-  //     std::cout << "All tasks cleared.\n";
-  //   }
-  // } catch (const std::exception &e) {
-  //   std::cerr << "Error: " << e.what() << "\n";
-  //   return 100;
-  // }
+  CLI::App *done = app.add_subcommand("done", "Mark a task as complete");
+  done->add_option("name", task_name, "Name or pattern to complete task(s)");
+
+  done->callback([&]() {
+    if (task_name.empty()) {
+      util::error("a name is required");
+      return;
+    }
+
+    std::string name = find_task(taskList, task_name);
+    if (name.empty()) {
+      util::error("no task found matching {}", task_name);
+      return;
+    }
+    taskList.completeTask(name);
+    std::println("Task '{}' marked as complete.", name);
+  });
+
+  CLI::App *rm = app.add_subcommand("rm", "Delete a task");
+  rm->add_option("name", task_name, "Name or pattern to delete task(s)");
+  rm->callback([&]() {
+    if (task_name.empty()) {
+      util::error("a name is required");
+      return;
+    }
+
+    std::string name = find_task(taskList, task_name);
+    if (name.empty()) {
+      util::error("no task found matching {}", task_name);
+      return;
+    }
+    taskList.removeTask(name);
+    std::println("Task '{}' marked as deleted.", name);
+  });
+
+  CLI::App *clear = app.add_subcommand("clear", "Remove completed tasks");
+  clear->callback([&]() {
+    try {
+      taskList.removeAllTasks();
+    } catch (const std::exception &e) {
+      util::error("could not remove all tasks: {}", e.what());
+    }
+    std::println("All tasks cleared.");
+  });
 
   CLI11_PARSE(app, argc, argv);
 
