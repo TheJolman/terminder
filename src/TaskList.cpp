@@ -17,9 +17,8 @@
 #include <optional>
 #include <print>
 
-std::expected<void, std::string>
-TaskList::addTask(const std::string &taskName,
-                  std::optional<std::string> dueDate) {
+std::expected<void, std::string> TaskList::addTask(const std::string &taskName,
+                                                   std::optional<std::string> dueDate) {
   if (dueDate.has_value()) {
     auto taskResult = Task::create(taskName, dueDate.value());
     if (!taskResult) {
@@ -33,20 +32,17 @@ TaskList::addTask(const std::string &taskName,
 }
 
 void TaskList::removeTask(const std::string &taskName) noexcept {
-  auto it =
-      std::find_if(list.begin(), list.end(), [&taskName](const Task &task) {
-        return task.getName() == taskName;
-      });
+  auto it = std::find_if(list.begin(), list.end(),
+                         [&taskName](const Task &task) { return task.getName() == taskName; });
   if (it != list.end()) {
     list.erase(it);
   }
 }
 
 void TaskList::completeTask(const std::string &taskName) noexcept {
-  auto it =
-      std::find_if(list.begin(), list.end(), [&taskName](const Task &task) {
-        return task.getName() == taskName && !task.isComplete();
-      });
+  auto it = std::find_if(list.begin(), list.end(), [&taskName](const Task &task) {
+    return task.getName() == taskName && !task.isComplete();
+  });
   if (it != list.end()) {
     it->markComplete();
   }
@@ -70,8 +66,8 @@ std::expected<void, std::string> TaskList::saveToFile() {
 
   std::ofstream outFile(dataFilePath);
   if (!outFile) {
-    return std::unexpected("unable to open file for writing:" +
-                           dataFilePath.string());
+    return std::unexpected(
+        std::format("unable to open file for writing: {}", dataFilePath.string()));
   }
   cereal::JSONOutputArchive oarchive(outFile);
   oarchive(*this);
@@ -88,14 +84,14 @@ std::expected<void, std::string> TaskList::loadFromFile() {
 
   std::ifstream inFile(dataFilePath);
   if (!inFile) {
-    return std::unexpected("unable to open file for reading: " +
-                           dataFilePath.string());
+    return std::unexpected(
+        std::format("unable to open file for reading: {}", dataFilePath.string()));
   }
   try {
     cereal::JSONInputArchive archive(inFile);
     archive(*this);
   } catch (const cereal::Exception &e) {
-    return std::unexpected("Error parsing JSON file: " + std::string(e.what()));
+    return std::unexpected(std::format("error parsing JSON file: {}", e.what()));
   }
 
   return {};
@@ -111,8 +107,7 @@ std::filesystem::path TaskList::getSaveLocation() {
   } else {
     const char *home = std::getenv("HOME");
     if (!home) {
-      std::println(stderr,
-                   "[ERROR] HOME environment variable is not set. exiting...");
+      std::println(stderr, "[ERROR] HOME environment variable is not set. exiting...");
       std::exit(1);
     }
     dataHome = std::filesystem::path(home) / ".local" / "share";

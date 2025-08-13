@@ -23,10 +23,8 @@
 #include <vector>
 
 namespace util {
-template <typename... Args>
-static void error(std::format_string<Args...> fmt, Args &&...args) {
-  std::println(stderr, "[ERROR] {}",
-               std::format(fmt, std::forward<Args>(args)...));
+template <typename... Args> static void error(std::format_string<Args...> fmt, Args &&...args) {
+  std::println(stderr, "[ERROR] {}", std::format(fmt, std::forward<Args>(args)...));
 }
 
 } // namespace util
@@ -38,17 +36,15 @@ struct Command {
   int maxArgs;
 };
 
-std::expected<Task, std::string> find_task(const TaskList &taskList,
-                                           const std::string &input) {
+std::expected<Task, std::string> find_task(const TaskList &taskList, const std::string &input) {
   auto tasks = taskList.getList();
   if (!tasks.has_value()) {
     return std::unexpected("task list could not be retrieved");
   }
 
-  auto it = std::find_if(
-      tasks.value().begin(), tasks.value().end(), [&input](const Task &task) {
-        return task.getName().compare(0, input.length(), input) == 0;
-      });
+  auto it = std::find_if(tasks.value().begin(), tasks.value().end(), [&input](const Task &task) {
+    return task.getName().compare(0, input.length(), input) == 0;
+  });
   if (it == tasks.value().end()) {
     return std::unexpected("could not find task");
   }
@@ -68,8 +64,7 @@ int main(int argc, char *argv[]) {
   // ls`
   app.require_subcommand(1);
 
-  CLI::App *add =
-      app.add_subcommand("add", "Create a new task with optional due date");
+  CLI::App *add = app.add_subcommand("add", "Create a new task with optional due date");
 
   std::string task_name{};
   add->add_option("name", task_name, "Task to add");
@@ -83,8 +78,8 @@ int main(int argc, char *argv[]) {
       return;
     }
 
-    auto addResult = date_str.empty() ? taskList.addTask(task_name)
-                                      : taskList.addTask(task_name, date_str);
+    auto addResult =
+        date_str.empty() ? taskList.addTask(task_name) : taskList.addTask(task_name, date_str);
 
     if (!addResult) {
       util::error("failed to add task: {}", addResult.error());

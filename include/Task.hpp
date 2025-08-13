@@ -34,14 +34,11 @@ class Task {
   // TODO: Get time until due
 public:
   // Default constructor
-  Task()
-      : name(""), completionStatus(false), timeUntilDue(std::chrono::hours(0)) {
-  }
+  Task() : name(""), completionStatus(false), timeUntilDue(std::chrono::hours(0)) {}
 
   // Constructor with name
   Task(const std::string &name)
-      : name(name), completionStatus(false),
-        timeUntilDue(std::chrono::hours(0)) {}
+      : name(name), completionStatus(false), timeUntilDue(std::chrono::hours(0)) {}
 
   // Constructor with name and due date
   // Task(std::string name, std::string dueDateStr)
@@ -56,8 +53,8 @@ public:
    * @param dueDateStr Due date string
    * @return Expected Task or error message
    */
-  static std::expected<Task, std::string>
-  create(const std::string &name, const std::string &dueDateStr) {
+  static std::expected<Task, std::string> create(const std::string &name,
+                                                 const std::string &dueDateStr) {
     auto dateResult = Date::fromString(dueDateStr);
     if (!dateResult) {
       return std::unexpected(dateResult.error());
@@ -79,9 +76,7 @@ public:
   std::string getName() const { return name; }
   bool isComplete() const { return completionStatus; }
   Date getDueDate() const { return dueDate; }
-  int getTimeUntilDue() const {
-    return timeUntilDue.count();
-  } // maybe needs to be long long
+  int getTimeUntilDue() const { return timeUntilDue.count(); } // maybe needs to be long long
 
 private:
   friend class cereal::access;
@@ -102,7 +97,6 @@ template <> struct std::formatter<Task> {
 
   auto format(const Task &t, std::format_context &ctx) const {
     return std::format_to(ctx.out(), "{}\t{}\t{}", t.getName(),
-                          t.isComplete() ? "Complete" : "Incomplete",
-                          t.getDueDate());
+                          t.isComplete() ? "Complete" : "Incomplete", t.getDueDate());
   }
 };

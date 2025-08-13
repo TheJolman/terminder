@@ -29,8 +29,7 @@ Date::parseDate(const std::string &dateString) {
   ss >> std::get_time(&tm, inputFormatStr.c_str());
 
   if (ss.fail()) {
-    return std::unexpected("Failed to parse date: '" + dateString +
-                           "' (expected format: mm/dd)");
+    return std::unexpected("Failed to parse date: '" + dateString + "' (expected format: mm/dd)");
   }
 
   return std::chrono::system_clock::from_time_t(std::mktime(&tm));

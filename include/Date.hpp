@@ -72,8 +72,7 @@ public:
    * @param dateStr date provided as a string
    * @return Expected Date object or error message
    */
-  static std::expected<Date, std::string>
-  fromString(const std::string &dateStr);
+  static std::expected<Date, std::string> fromString(const std::string &dateStr);
 
 private:
   std::chrono::system_clock::time_point date;
