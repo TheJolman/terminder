@@ -1,8 +1,18 @@
 SHELL ?= /bin/sh
 CXX ?= clang++
-CXXFLAGS := -std=c++23
-RELEASEFLAGS := -O2 $(CXXFLAGS)
-DBGFLAGS := -g -Og -Wall -Wextra -pedantic $(CXXFLAGS)
+
+# Build type from environment variable (default: release)
+BUILD_TYPE ?= release
+
+# Base flags
+BASE_CXXFLAGS := -std=c++23
+
+# Conditional flags based on BUILD_TYPE
+ifeq ($(BUILD_TYPE),debug)
+    CXXFLAGS := $(BASE_CXXFLAGS) -g -Og -Wall -Wextra -pedantic
+else
+    CXXFLAGS := $(BASE_CXXFLAGS) -O2
+endif
 
 # Output dirs
 prefix ?= /usr/local
@@ -24,8 +34,11 @@ OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 # Executable
 NAME := terminder
-TARGET := $(BUILD_DIR)/$(NAME)
-DEBUG_TARGET := $(BUILD_DIR)/$(NAME)_debug
+ifeq ($(BUILD_TYPE),debug)
+    TARGET := $(BUILD_DIR)/$(NAME)_debug
+else
+    TARGET := $(BUILD_DIR)/$(NAME)
+endif
 
 # Default target
 all: $(TARGET)
@@ -40,12 +53,6 @@ $(TARGET): $(OBJS)
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-debug: $(DEBUG_TARGET)
-
-$(DEBUG_TARGET): $(SRCS)
-	@mkdir -p $(@D)
-	$(CXX) $(DBGFLAGS) -I$(INCLUDE_DIR) $^ -o $@
-
 install: $(TARGET)
 	@mkdir -p $(DESTDIR)$(bindir)
 	install -m 0755 $(TARGET) $(bindir)
@@ -59,4 +66,4 @@ clean:
 format:
 	clang-format -i $(SRCS) $(wildcard $(INCLUDE_DIR)/*.hpp)
 
-.PHONY: all clean debug install uninstall format
+.PHONY: all clean install uninstall format

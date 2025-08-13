@@ -47,6 +47,7 @@
             fi
 
             export CXX="clang++"
+            export BUILD_TYPE="debug"
             export PATH="$PWD/build:$PATH"
           '';
         };
