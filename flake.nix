@@ -39,11 +39,9 @@
             bear
           ];
 
-          CXX = "clang++";
-
           shellHook = ''
-            if ! test -f "compile_commands.json"; then
-              make clean && bear -- make
+            if ! test -f "build/compile_commands.json"; then
+              echo "Warning: compile_commands.json not found. Run `make setup` on your first build!"
             fi
 
             export CXX="clang++"

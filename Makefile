@@ -24,24 +24,30 @@ DESTDIR ?=
 SRC_DIR := src
 INCLUDE_DIR := include
 BUILD_DIR := build
-OBJ_DIR := $(BUILD_DIR)/obj
+PROJECT_FILE := $(BUILD_DIR)/compile_commands.json
 
 # Source files
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 
-# Object files
-OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
-
-# Executable
 NAME := terminder
+
 ifeq ($(BUILD_TYPE),debug)
+	OBJ_DIR := $(BUILD_DIR)/obj_debug
     TARGET := $(BUILD_DIR)/$(NAME)_debug
 else
+	OBJ_DIR := $(BUILD_DIR)/obj
     TARGET := $(BUILD_DIR)/$(NAME)
 endif
 
+OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+
 # Default target
 all: $(TARGET)
+
+setup:
+	@rm -rf $(BUILD_DIR)
+	@mkdir $(BUILD_DIR)
+	bear --output $(PROJECT_FILE) -- $(MAKE)
 
 # Compile source files into object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
@@ -67,10 +73,9 @@ format:
 	clang-format -i $(SRCS) $(wildcard $(INCLUDE_DIR)/*.hpp)
 
 tidy:
-	run-clang-tidy
+	run-clang-tidy -p $(BUILD_DIR)
 
 check:
-	cppcheck -I include/ src/*
+	cppcheck -I $(INCLUDE_DIR) --project=$(PROJECT_FILE)
 
-
-.PHONY: all clean install uninstall format
+.PHONY: all clean install uninstall format setup check
