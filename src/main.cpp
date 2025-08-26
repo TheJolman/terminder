@@ -29,7 +29,6 @@ template <typename... Args> static void error(std::format_string<Args...> fmt, A
 
 } // namespace util
 
-
 std::expected<Task, std::string> find_task(const TaskList &taskList, const std::string &input) {
   auto tasks = taskList.getList();
   if (!tasks.has_value()) {
