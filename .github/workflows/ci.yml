@@ -21,12 +21,7 @@ jobs:
         run: nix develop -c bash -c "make format && git diff --exit-code"
 
       - name: Clang tidy
-        run: nix develop -c run-clang-tidy -quiet
+        run: nix develop -c make tidy-ci
 
-      # - name: Run static analysis
-      #   run: |
-      #     nix develop -c cppcheck --error-exitcode=100 .
-
-      # - name: Run valgrind
-      #   run: |
-      #     nix develop -c valgrind --error-exitcode=100 --leak-check=full ./result/bin/terminder
+      - name: cppcheck
+        run: nix develop -c make check

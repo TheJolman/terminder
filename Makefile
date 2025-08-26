@@ -73,6 +73,9 @@ format:
 	clang-format -i $(SRCS) $(wildcard $(INCLUDE_DIR)/*.hpp)
 
 tidy:
+	run-clang-tidy -p $(BUILD_DIR) -fix -format
+
+tidy-ci:
 	run-clang-tidy -p $(BUILD_DIR)
 
 check:
