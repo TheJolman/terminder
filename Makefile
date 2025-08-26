@@ -75,9 +75,6 @@ format:
 tidy:
 	run-clang-tidy -p $(BUILD_DIR) -fix -format
 
-tidy-ci:
-	run-clang-tidy -p $(BUILD_DIR)
-
 check:
 	cppcheck -I $(INCLUDE_DIR) --project=$(PROJECT_FILE)
 
