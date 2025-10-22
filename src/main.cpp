@@ -10,22 +10,15 @@
  * See the LICENSE file in the project root for full license information.
  */
 
-// #include "Date.hpp"
 #include "CLI/CLI.hpp"
 #include "Task.hpp"
 #include "TaskList.hpp"
+#include "Util.hpp"
 #include <algorithm>
 #include <cstdio>
 #include <expected>
 #include <print>
 #include <string>
-
-namespace util {
-template <typename... Args> static void error(std::format_string<Args...> fmt, Args &&...args) {
-  std::println(stderr, "[ERROR] {}", std::format(fmt, std::forward<Args>(args)...));
-}
-
-} // namespace util
 
 std::expected<Task, std::string> find_task(const TaskList &taskList, const std::string &input) {
   auto tasks = taskList.getList();
