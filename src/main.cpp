@@ -18,9 +18,7 @@
 #include <cstdio>
 #include <expected>
 #include <print>
-#include <sstream>
 #include <string>
-#include <vector>
 
 namespace util {
 template <typename... Args> static void error(std::format_string<Args...> fmt, Args &&...args) {
