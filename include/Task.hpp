@@ -14,8 +14,8 @@
 #include "Date.hpp"
 #include <cereal/access.hpp>
 #include <cereal/archives/json.hpp>
-#include <cereal/types/string.hpp>
 #include <cereal/types/optional.hpp>
+#include <cereal/types/string.hpp>
 #include <expected>
 #include <format>
 #include <string>
@@ -39,12 +39,8 @@ public:
   // Constructor with name
   Task(const std::string &name) : name(name), completionStatus(false), dueDate(std::nullopt) {}
 
-  // Constructor with name and due date
-  // Task(std::string name, std::string dueDateStr)
-  //     : name(name), completionStatus(false), dueDate(Date(dueDateStr)) {
-  //   Date initialDate;
-  //   timeUntilDue = dueDate - initialDate;
-  // }
+  // To construct with a dueDateStr, use the below `create` function. This is used since
+  // parsing the due date can fail and I'm trying to avoid using exceptions.
 
   /**
    * @brief Creates a Task with proper error handling for date parsing
