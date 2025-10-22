@@ -78,17 +78,7 @@ int main(int argc, char *argv[]) {
 
   // List Subcommand ==============================================================================
   CLI::App *ls = app.add_subcommand("ls", "List all tasks");
-  ls->callback([&]() {
-    taskList.prettyPrint();
-    // auto tasks = taskList.getList();
-    // if (tasks.has_value()) {
-    //   // for (const auto &task : tasks.value()) {
-    //   //   std::println("{}", task);
-    //   // }
-    //   // return;
-    // }
-    // std::println("No tasks found.");
-  });
+  ls->callback([&]() { taskList.prettyPrint(); });
 
   // Done Subcommand ==============================================================================
   CLI::App *done = app.add_subcommand("done", "Mark a task as complete");
