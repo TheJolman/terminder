@@ -44,10 +44,9 @@ int main(int argc, char *argv[]) {
   }
 
   CLI::App app{"Terminder: a task tracking CLI"};
-  // maybe make running with no subcommand will do the equivalent of `argv[0]
-  // ls`
   app.require_subcommand(1);
 
+  // Add Subcommand ===============================================================================
   CLI::App *add = app.add_subcommand("add", "Create a new task with optional due date");
 
   std::string task_name{};
@@ -77,6 +76,7 @@ int main(int argc, char *argv[]) {
     }
   });
 
+  // List Subcommand ==============================================================================
   CLI::App *ls = app.add_subcommand("ls", "List all tasks");
   ls->callback([&]() {
     auto tasks = taskList.getList();
@@ -89,6 +89,7 @@ int main(int argc, char *argv[]) {
     std::println("No tasks found.");
   });
 
+  // Done Subcommand ==============================================================================
   CLI::App *done = app.add_subcommand("done", "Mark a task as complete");
   done->add_option("name", task_name, "Name or pattern to complete task(s)");
 
@@ -107,6 +108,7 @@ int main(int argc, char *argv[]) {
     std::println("Task '{}' marked as complete.", task.value().getName());
   });
 
+  // Remove Subcommand ============================================================================
   CLI::App *rm = app.add_subcommand("rm", "Delete a task");
   rm->add_option("name", task_name, "Name or pattern to delete task(s)");
   rm->callback([&]() {
@@ -124,6 +126,7 @@ int main(int argc, char *argv[]) {
     std::println("Task '{}' marked as deleted.", task.value().getName());
   });
 
+  // Clear Subcommand =============================================================================
   CLI::App *clear = app.add_subcommand("clear", "Remove completed tasks");
   clear->callback([&]() {
     taskList.removeAllTasks();
