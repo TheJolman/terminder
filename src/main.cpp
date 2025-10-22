@@ -119,9 +119,16 @@ int main(int argc, char *argv[]) {
 
   // Clear Subcommand =============================================================================
   CLI::App *clear = app.add_subcommand("clear", "Remove completed tasks");
+  bool all_flag{false};
+  clear->add_flag("--all,-a", all_flag, "Remove all tasks instead");
   clear->callback([&]() {
-    taskList.removeAllTasks();
-    std::println("All tasks cleared.");
+    if (all_flag) {
+      taskList.removeAllTasks();
+      std::println("All tasks cleared.");
+    } else {
+      taskList.removeCompletedTasks();
+      std::println("Completed tasks cleared.");
+    }
   });
 
   CLI11_PARSE(app, argc, argv);
