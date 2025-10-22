@@ -60,6 +60,10 @@ int main(int argc, char *argv[]) {
       util::error("a name is required");
       return;
     }
+    if (find_task(taskList, task_name)) {
+      util::error("task '{}' already exists", task_name);
+      exit(1);
+    }
 
     auto addResult =
         date_str.empty() ? taskList.addTask(task_name) : taskList.addTask(task_name, date_str);
@@ -70,9 +74,9 @@ int main(int argc, char *argv[]) {
     }
 
     if (date_str.empty()) {
-      std::println("Task {} added.", task_name);
+      std::println("Task '{}' added.", task_name);
     } else {
-      std::println("Task {} added with due date {}.", task_name, date_str);
+      std::println("Task '{}' added with due date {}.", task_name, date_str);
     }
   });
 
@@ -110,7 +114,7 @@ int main(int argc, char *argv[]) {
 
     auto task = find_task(taskList, task_name);
     if (!task) {
-      util::error("no task found matching {}", task_name);
+      util::error("no task found matching '{}'", task_name);
       return;
     }
     taskList.removeTask(task.value().getName());
