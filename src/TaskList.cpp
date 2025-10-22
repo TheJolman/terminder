@@ -122,3 +122,17 @@ void TaskList::setSaveLocation() {
   std::filesystem::create_directory(appDataDir);
   dataFilePath = appDataDir / fileName;
 }
+
+void TaskList::prettyPrint() {
+  if (list.empty()) {
+    std::println("No tasks to display.");
+    return;
+  }
+  std::println("{:<2} {:<20} {:<10} {:<12}", "#", "Name", "Status", "Due Date\n");
+  int idx = 1;
+  for (const auto &t : this->list) {
+    // Compiler gets mad if I use width specifier for the `getDueDate` column
+    std::println("{:<2} {:<20} {:<10} {}", idx++, t.getName(), t.isComplete() ? "✓ Done" : "○ TODO",
+                 t.getDueDate());
+  }
+}

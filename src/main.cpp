@@ -79,14 +79,15 @@ int main(int argc, char *argv[]) {
   // List Subcommand ==============================================================================
   CLI::App *ls = app.add_subcommand("ls", "List all tasks");
   ls->callback([&]() {
-    auto tasks = taskList.getList();
-    if (tasks.has_value()) {
-      for (const auto &task : tasks.value()) {
-        std::println("{}", task);
-      }
-      return;
-    }
-    std::println("No tasks found.");
+    taskList.prettyPrint();
+    // auto tasks = taskList.getList();
+    // if (tasks.has_value()) {
+    //   // for (const auto &task : tasks.value()) {
+    //   //   std::println("{}", task);
+    //   // }
+    //   // return;
+    // }
+    // std::println("No tasks found.");
   });
 
   // Done Subcommand ==============================================================================

@@ -33,6 +33,8 @@ public:
   std::expected<void, std::string> saveToFile();
   std::expected<void, std::string> loadFromFile();
 
+  void prettyPrint();
+
 private:
   std::list<Task> list;
   std::filesystem::path dataFilePath;
