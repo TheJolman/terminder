@@ -4,8 +4,11 @@ CXX ?= clang++
 # Build type from environment variable (default: release)
 BUILD_TYPE ?= release
 
+# Get git version
+GIT_VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "unknown")
+
 # Base flags
-BASE_CXXFLAGS := -std=c++23
+BASE_CXXFLAGS := -std=c++23 -DVERSION=\"$(GIT_VERSION)\"
 
 # Conditional flags based on BUILD_TYPE
 ifeq ($(BUILD_TYPE),debug)

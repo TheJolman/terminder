@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
   }
 
   CLI::App app{"Terminder: a task tracking CLI"};
+  app.set_version_flag("--version,-v", VERSION);
   app.require_subcommand(1);
 
   // Add Subcommand ===============================================================================
