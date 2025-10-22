@@ -131,8 +131,10 @@ void TaskList::prettyPrint() {
   std::println("{:<2} {:<20} {:<10} {:<12}", "#", "Name", "Status", "Due Date\n");
   int idx = 1;
   for (const auto &t : this->list) {
-    // Compiler gets mad if I use width specifier for the `getDueDate` column
-    std::println("{:<2} {:<20} {:<10} {}", idx++, t.getName(), t.isComplete() ? "✓ Done" : "○ TODO",
-                 t.getDueDate());
+    auto dateStr = t.getDueDate()
+                       .transform([](const auto &date) { return Date::toString(date); })
+                       .value_or("");
+    std::println("{:<2} {:<20} {:<10} {:<12}", idx++, t.getName(),
+                 t.isComplete() ? "✓ Done" : "○ TODO", dateStr);
   }
 }

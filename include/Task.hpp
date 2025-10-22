@@ -33,10 +33,10 @@ class Task {
   // TODO: Get time until due
 public:
   // Default constructor
-  Task() : name(""), completionStatus(false) {}
+  Task() : name(""), completionStatus(false), dueDate(std::nullopt) {}
 
   // Constructor with name
-  Task(const std::string &name) : name(name), completionStatus(false) {}
+  Task(const std::string &name) : name(name), completionStatus(false), dueDate(std::nullopt) {}
 
   // Constructor with name and due date
   // Task(std::string name, std::string dueDateStr)
@@ -72,7 +72,7 @@ public:
 
   std::string getName() const { return name; }
   bool isComplete() const { return completionStatus; }
-  Date getDueDate() const { return dueDate; }
+  std::optional<Date> getDueDate() const { return dueDate; }
 
 private:
   friend class cereal::access;
@@ -83,7 +83,7 @@ private:
 
   std::string name;
   bool completionStatus;
-  Date dueDate;
+  std::optional<Date> dueDate;
 };
 
 template <> struct std::formatter<Task> {
