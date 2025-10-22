@@ -33,11 +33,10 @@ class Task {
   // TODO: Get time until due
 public:
   // Default constructor
-  Task() : name(""), completionStatus(false), timeUntilDue(std::chrono::hours(0)) {}
+  Task() : name(""), completionStatus(false) {}
 
   // Constructor with name
-  Task(const std::string &name)
-      : name(name), completionStatus(false), timeUntilDue(std::chrono::hours(0)) {}
+  Task(const std::string &name) : name(name), completionStatus(false) {}
 
   // Constructor with name and due date
   // Task(std::string name, std::string dueDateStr)
@@ -65,7 +64,6 @@ public:
     task.dueDate = dateResult.value();
 
     Date initialDate;
-    task.timeUntilDue = task.dueDate - initialDate;
 
     return task;
   }
@@ -75,20 +73,17 @@ public:
   std::string getName() const { return name; }
   bool isComplete() const { return completionStatus; }
   Date getDueDate() const { return dueDate; }
-  int getTimeUntilDue() const { return timeUntilDue.count(); } // maybe needs to be long long
 
 private:
   friend class cereal::access;
 
   template <class Archive> void serialize(Archive &ar) {
-    ar(CEREAL_NVP(name), CEREAL_NVP(completionStatus), CEREAL_NVP(dueDate),
-       CEREAL_NVP(timeUntilDue));
+    ar(CEREAL_NVP(name), CEREAL_NVP(completionStatus), CEREAL_NVP(dueDate));
   }
 
   std::string name;
   bool completionStatus;
   Date dueDate;
-  std::chrono::hours timeUntilDue;
 };
 
 template <> struct std::formatter<Task> {
