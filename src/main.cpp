@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
   add->add_option("name", task_name, "Task to add");
 
   std::string date_str{};
-  add->add_option("--date,-d", date_str, "Optional date");
+  add->add_option("--date,-d", date_str, "Optional date (format: mm/dd)");
 
   add->callback([&]() {
     if (task_name.empty()) {
