@@ -15,6 +15,7 @@
 #include <cereal/access.hpp>
 #include <cereal/archives/json.hpp>
 #include <cereal/types/string.hpp>
+#include <cereal/types/optional.hpp>
 #include <expected>
 #include <format>
 #include <string>
