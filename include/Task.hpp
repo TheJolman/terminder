@@ -14,6 +14,7 @@
 #include "Date.hpp"
 #include <cereal/access.hpp>
 #include <cereal/archives/json.hpp>
+#include <cereal/types/optional.hpp>
 #include <cereal/types/string.hpp>
 #include <expected>
 #include <format>
@@ -33,18 +34,13 @@ class Task {
   // TODO: Get time until due
 public:
   // Default constructor
-  Task() : name(""), completionStatus(false), timeUntilDue(std::chrono::hours(0)) {}
+  Task() : name(""), completionStatus(false), dueDate(std::nullopt) {}
 
   // Constructor with name
-  Task(const std::string &name)
-      : name(name), completionStatus(false), timeUntilDue(std::chrono::hours(0)) {}
+  Task(const std::string &name) : name(name), completionStatus(false), dueDate(std::nullopt) {}
 
-  // Constructor with name and due date
-  // Task(std::string name, std::string dueDateStr)
-  //     : name(name), completionStatus(false), dueDate(Date(dueDateStr)) {
-  //   Date initialDate;
-  //   timeUntilDue = dueDate - initialDate;
-  // }
+  // To construct with a dueDateStr, use the below `create` function. This is used since
+  // parsing the due date can fail and I'm trying to avoid using exceptions.
 
   /**
    * @brief Creates a Task with proper error handling for date parsing
@@ -65,7 +61,6 @@ public:
     task.dueDate = dateResult.value();
 
     Date initialDate;
-    task.timeUntilDue = task.dueDate - initialDate;
 
     return task;
   }
@@ -74,21 +69,18 @@ public:
 
   std::string getName() const { return name; }
   bool isComplete() const { return completionStatus; }
-  Date getDueDate() const { return dueDate; }
-  int getTimeUntilDue() const { return timeUntilDue.count(); } // maybe needs to be long long
+  std::optional<Date> getDueDate() const { return dueDate; }
 
 private:
   friend class cereal::access;
 
   template <class Archive> void serialize(Archive &ar) {
-    ar(CEREAL_NVP(name), CEREAL_NVP(completionStatus), CEREAL_NVP(dueDate),
-       CEREAL_NVP(timeUntilDue));
+    ar(CEREAL_NVP(name), CEREAL_NVP(completionStatus), CEREAL_NVP(dueDate));
   }
 
   std::string name;
   bool completionStatus;
-  Date dueDate;
-  std::chrono::hours timeUntilDue;
+  std::optional<Date> dueDate;
 };
 
 template <> struct std::formatter<Task> {
