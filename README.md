@@ -55,3 +55,6 @@ SUBCOMMANDS:
 ## Contributing
 
 Contributions to Terminder are welcome. I'm a student so any submitted issues/prs are appreciated.
+
+## Related Projects
+- [Taskwarrior](https://taskwarrior.org/docs/start/)
