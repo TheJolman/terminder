@@ -16,6 +16,8 @@
 #include <fstream>
 #include <optional>
 #include <print>
+#include <tabulate/font_style.hpp>
+#include <tabulate/table.hpp>
 
 std::expected<void, std::string> TaskList::addTask(const std::string &taskName,
                                                    std::optional<std::string> dueDate) {
@@ -128,13 +130,22 @@ void TaskList::prettyPrint() {
     std::println("No tasks to display.");
     return;
   }
-  std::println("{:<2} {:<20} {:<10} {:<12}", "#", "Name", "Status", "Due Date\n");
+  using namespace tabulate;
+  Table task_table;
   int idx = 1;
+  task_table.add_row({"#", "Task", "Status", "Due Date"});
+  task_table[0]
+      .format()
+      .font_style({FontStyle::bold})
+      .font_background_color(Color::white)
+      .font_color(Color::grey);
   for (const auto &t : this->list) {
     auto dateStr = t.getDueDate()
                        .transform([](const auto &date) { return Date::toString(date); })
                        .value_or("");
-    std::println("{:<2} {:<20} {:<10} {:<12}", idx++, t.getName(),
-                 t.isComplete() ? "✓ Done" : "○ TODO", dateStr);
+    auto completion = t.isComplete() ? "DONE" : "TODO";
+    task_table.add_row({std::to_string(idx++), t.getName(), completion, dateStr});
   }
+  // task_table.format();
+  std::cout << task_table << std::endl;
 }

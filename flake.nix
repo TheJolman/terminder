@@ -14,6 +14,20 @@
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
+        tabulate = pkgs.stdenv.mkDerivation {
+          name = "tabulate";
+          src = pkgs.fetchFromGitHub {
+            owner = "p-ranav";
+            repo = "tabulate";
+            tag = "v1.5";
+            hash = "sha256-A4fsNzRmfHxKx5nZNUkKWMVyHDLWV5R5U1HLh9iUrTE=";
+          };
+          dontBuild = true;
+          installPhase = ''
+            mkdir -p $out/include
+            cp -r include/tabulate $out/include
+          '';
+        };
       in {
         packages.default = pkgs.stdenv.mkDerivation {
           name = "terminder";
@@ -22,6 +36,7 @@
           buildInputs = with pkgs; [
             cereal
             cli11
+            tabulate
           ];
 
           installPhase = "make install prefix=$out";
@@ -34,6 +49,7 @@
             llvmPackages_20.lldb
             cereal
             cli11
+            tabulate
             valgrind
             cppcheck
             bear
