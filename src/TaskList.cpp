@@ -16,6 +16,7 @@
 #include <fstream>
 #include <optional>
 #include <print>
+#include <tabulate/font_style.hpp>
 #include <tabulate/table.hpp>
 
 std::expected<void, std::string> TaskList::addTask(const std::string &taskName,
@@ -129,9 +130,15 @@ void TaskList::prettyPrint() {
     std::println("No tasks to display.");
     return;
   }
-  tabulate::Table task_table;
+  using namespace tabulate;
+  Table task_table;
   int idx = 1;
   task_table.add_row({"#", "Task", "Status", "Due Date"});
+  task_table[0]
+      .format()
+      .font_style({FontStyle::bold})
+      .font_background_color(Color::white)
+      .font_color(Color::grey);
   for (const auto &t : this->list) {
     auto dateStr = t.getDueDate()
                        .transform([](const auto &date) { return Date::toString(date); })
@@ -139,5 +146,6 @@ void TaskList::prettyPrint() {
     auto completion = t.isComplete() ? "✓ Done" : "○ TODO";
     task_table.add_row({std::to_string(idx++), t.getName(), completion, dateStr});
   }
+  // task_table.format();
   std::cout << task_table << std::endl;
 }
