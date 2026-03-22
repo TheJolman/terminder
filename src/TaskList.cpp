@@ -20,15 +20,15 @@
 #include <tabulate/table.hpp>
 
 std::expected<void, std::string> TaskList::addTask(const std::string &taskName,
-                                                   std::optional<std::string> dueDate) {
-  if (dueDate.has_value()) {
-    auto taskResult = Task::create(taskName, dueDate.value());
+                                                   const std::string &dueDate) {
+  if (dueDate.empty()) {
+    list.emplace_back(Task(taskName));
+  } else {
+    auto taskResult = Task::create(taskName, dueDate);
     if (!taskResult) {
       return std::unexpected(taskResult.error());
     }
-    list.emplace_front(taskResult.value());
-  } else {
-    list.emplace_front(Task(taskName));
+    list.emplace_back(taskResult.value());
   }
   return {};
 }
@@ -51,12 +51,12 @@ void TaskList::completeTask(const std::string &taskName) noexcept {
 }
 
 void TaskList::removeCompletedTasks() noexcept {
-  list.remove_if([](const Task &task) { return task.isComplete(); });
+  std::erase_if(list, [](const Task &task) { return task.isComplete(); });
 }
 
 void TaskList::removeAllTasks() { list.clear(); }
 
-std::optional<std::list<Task>> TaskList::getList() const noexcept {
+std::optional<std::vector<Task>> TaskList::getList() const noexcept {
   if (list.empty()) {
     return std::nullopt;
   }
