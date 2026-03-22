@@ -132,20 +132,20 @@ void TaskList::prettyPrint() {
   }
   using namespace tabulate;
   Table task_table;
-  int idx = 1;
   task_table.add_row({"#", "Task", "Status", "Due Date"});
   task_table[0]
       .format()
       .font_style({FontStyle::bold})
       .font_background_color(Color::white)
       .font_color(Color::grey);
-  for (const auto &t : this->list) {
-    auto dateStr = t.getDueDate()
+
+  for (size_t i = 0; i < list.size(); ++i) {
+    auto dateStr = list[i].getDueDate()
                        .transform([](const auto &date) { return Date::toString(date); })
                        .value_or("");
-    auto completion = t.isComplete() ? "DONE" : "TODO";
-    task_table.add_row({std::to_string(idx++), t.getName(), completion, dateStr});
+    auto completion = list[i].isComplete() ? "DONE" : "TODO";
+    task_table.add_row({std::to_string(i + 1), list[i].getName(), completion, dateStr});
   }
-  // task_table.format();
+
   std::cout << task_table << std::endl;
 }
