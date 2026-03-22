@@ -12,6 +12,7 @@
 
 #include "TaskList.hpp"
 #include <cereal/archives/json.hpp>
+#include <tabulate/table.hpp>
 #include <filesystem>
 #include <fstream>
 #include <optional>
