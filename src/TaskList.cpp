@@ -143,7 +143,7 @@ void TaskList::prettyPrint() {
     auto dateStr = t.getDueDate()
                        .transform([](const auto &date) { return Date::toString(date); })
                        .value_or("");
-    auto completion = t.isComplete() ? "✓ Done" : "○ TODO";
+    auto completion = t.isComplete() ? "DONE" : "TODO";
     task_table.add_row({std::to_string(idx++), t.getName(), completion, dateStr});
   }
   // task_table.format();
