@@ -15,7 +15,6 @@
 #include "TaskList.hpp"
 #include "Util.hpp"
 #include <algorithm>
-#include <cstdio>
 #include <expected>
 #include <print>
 #include <string>
