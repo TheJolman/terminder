@@ -13,8 +13,6 @@
 #pragma once
 
 #include "Task.hpp"
-#include <cereal/access.hpp>
-#include <cereal/types/vector.hpp>
 #include <expected>
 #include <filesystem>
 #include <optional>
@@ -39,10 +37,6 @@ public:
 private:
   std::vector<Task> list;
   std::filesystem::path dataFilePath;
-
-  friend class cereal::access;
-
-  template <class Archive> void serialize(Archive &ar) { ar(list); }
 
   std::filesystem::path getSaveLocation();
   void setSaveLocation();

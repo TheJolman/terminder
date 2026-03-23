@@ -12,6 +12,7 @@
 
 #include "TaskList.hpp"
 #include <cereal/archives/json.hpp>
+#include <cereal/types/vector.hpp>
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -54,7 +55,7 @@ std::expected<void, std::string> TaskList::saveToFile() {
         std::format("unable to open file for writing: {}", dataFilePath.string()));
   }
   cereal::JSONOutputArchive oarchive(outFile);
-  oarchive(*this);
+  oarchive(cereal::make_nvp("tasklist", list));
   return {};
 }
 
@@ -73,7 +74,7 @@ std::expected<void, std::string> TaskList::loadFromFile() {
   }
   try {
     cereal::JSONInputArchive archive(inFile);
-    archive(*this);
+    archive(list);
   } catch (const cereal::Exception &e) {
     return std::unexpected(std::format("error parsing JSON file: {}", e.what()));
   }
