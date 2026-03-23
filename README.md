@@ -1,5 +1,15 @@
 # Terminder - Simple Task Manager CLI
 
+```
++---+--------------+--------+-------------+
+| # | Task         | Status | Due Date    |
++---+--------------+--------+-------------+
+| 1 | squash bugs  | DONE   |             |
++---+--------------+--------+-------------+
+| 2 | make release | TODO   | Apr 01 2026 |
++---+--------------+--------+-------------+
+```
+
 ## Description
 
 Terminder is a dead simple task manager cli that I wrote for my own purposes. Uses the cereal serialization library.
@@ -8,21 +18,19 @@ Terminder is a dead simple task manager cli that I wrote for my own purposes. Us
 
 - cereal
 - cli11
-- recent version of clang++ (this project uses c++23)
-- GNU Make
 
 ## Installation
 
-For Nix users: add the following to the inputs of your `flake.nix`
-```nix
-terminder.url = "github:thejolman/terminder"
-```
-And then you can reference it with the following anywhere in your config
-```nix
-inputs.terminder.packages.${system}.default
+### Nix
+
+```sh
+nix run github:thejolman/terminder
 ```
 
-For everyone else: install with the Makefile
+You can also add this to your flake inputs and reference it in your NixOS or Home Manager config to install globally.
+
+### Everyone else
+
 ```sh
 make && sudo make install
 ```
@@ -51,6 +59,8 @@ SUBCOMMANDS:
   rm                          Delete a task
   clear                       Remove completed tasks
 ```
+
+Tasks are stored at `$XDG_DATA_HOME/terminder/data.json`. This is usually `~/.local/share/terminder/data.json`.
 
 ## Contributing
 
