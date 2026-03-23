@@ -136,7 +136,7 @@ void TaskList::prettyPrint() {
   for (size_t i = 0; i < list.size(); ++i) {
     auto dateStr = list[i]
                        .getDueDate()
-                       .transform([](const auto &date) { return Date::toString(date); })
+                       .transform([](const auto &date) { return date.toString(); })
                        .value_or("");
     auto completion = list[i].isComplete() ? "DONE" : "TODO";
     task_table.add_row({std::to_string(i + 1), list[i].getName(), completion, dateStr});

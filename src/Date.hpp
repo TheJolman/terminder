@@ -13,6 +13,7 @@
 #pragma once
 
 #include <cereal/access.hpp>
+#include <cereal/cereal.hpp>
 #include <cereal/types/chrono.hpp>
 #include <chrono>
 #include <expected>
@@ -35,6 +36,7 @@ public:
    * @param dateStr date provided as a string
    * @note This constructor will create a default date if parsing fails
    */
+  Date() = default;
   Date(const std::string &dateStr) {
     auto result = fromString(dateStr);
     if (result) {
@@ -57,7 +59,19 @@ private:
 
   friend class cereal::access;
 
-  template <class Archive> void serialize(Archive &ar) { ar(date); }
+  template <class Archive> void serialize(Archive &ar) {
+    int y;
+    unsigned m, d;
+    if constexpr (Archive::is_saving::value) {
+      y = static_cast<int>(date.year());
+      m = static_cast<unsigned>(date.month());
+      d = static_cast<unsigned>(date.day());
+    }
+    ar(cereal::make_nvp("year", y), cereal::make_nvp("month", m), cereal::make_nvp("day", d));
+    if constexpr (Archive::is_loading::value) {
+      date = std::chrono::year(y) / m / d;
+    }
+  }
 };
 
 template <> struct std::formatter<Date> {
