@@ -29,7 +29,7 @@ make && sudo make install
 You can adjust the install location like:
 ```sh
 # This will install to ~/.local/bin/
-make install PREFIX=~/.local
+make install prefix=~/.local
 ```
 
 ## Usage
