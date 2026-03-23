@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 
   // Remove Subcommand ============================================================================
   CLI::App *rm = app.add_subcommand("rm", "Delete a task");
-  rm->add_option("name", task_name, "Name or pattern to delete task(s)");
+  rm->add_option("name", input, "Name or pattern to delete task(s)");
   rm->callback([&]() {
     size_t index = getValidIndexOrThrow(taskList, input);
     taskList.removeTask(index);
