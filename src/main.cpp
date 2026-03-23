@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
   add->add_option("name", nameInput, "Task to add");
 
   std::string dateInput{};
-  add->add_option("--date,-d", dateInput, "Optional date (format: mm/dd)");
+  add->add_option("--date,-d", dateInput, "Optional date (format: mm/dd/yy)");
 
   add->callback([&]() {
     if (nameInput.empty()) {
