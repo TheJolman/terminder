@@ -60,8 +60,6 @@ public:
     task.completionStatus = false;
     task.dueDate = dateResult.value();
 
-    Date initialDate;
-
     return task;
   }
 

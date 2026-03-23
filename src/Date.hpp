@@ -17,6 +17,7 @@
 #include <chrono>
 #include <expected>
 #include <format>
+#include <stdexcept>
 
 /**
  * @brief A class that uses chrono to handle due dates
@@ -30,71 +31,39 @@
 class Date {
 public:
   /**
-   * @brief Constructs a date object with the time the object was created
-   */
-  Date() noexcept : date(std::chrono::system_clock::now()) {}
-
-  /**
    * @brief Constructs a date object with provided date
    * @param dateStr date provided as a string
    * @note This constructor will create a default date if parsing fails
    */
   Date(const std::string &dateStr) {
-    auto result = parseDate(dateStr);
+    auto result = fromString(dateStr);
     if (result) {
       date = result.value();
     } else {
-      date = std::chrono::system_clock::now(); // fallback to current time
+      throw std::invalid_argument("invalid date format");
     }
   }
+  Date(const std::chrono::year_month_day &ymd) : date(ymd) {}
 
-  /**
-   * @brief Compares two date objects. Used for sorting
-   */
-  bool operator<(const Date &other) const { return date < other.date; }
+  std::string toString() const noexcept;
 
-  /**
-   * @brief Overloaded subraction to get the diff between two dates in hours
-   */
-  std::chrono::hours operator-(const Date &other) const {
-    return std::chrono::duration_cast<std::chrono::hours>(date - other.date);
-  }
-
-  /**
-   * @brief Converts Date.futureDate to a string
-   */
-  static std::string toString(const Date &date) noexcept;
-
-  /**
-   * @brief Creates a Date from a string with error handling
-   * @param dateStr date provided as a string
-   * @return Expected Date object or error message
-   */
-  static std::expected<Date, std::string> fromString(const std::string &dateStr);
+  static std::expected<std::chrono::year_month_day, std::string>
+  fromString(const std::string &dateStr);
 
 private:
-  std::chrono::system_clock::time_point date;
+  std::chrono::year_month_day date;
   static const std::string inputFormatStr;
   static const std::string outputFormatStr;
 
   friend class cereal::access;
 
   template <class Archive> void serialize(Archive &ar) { ar(date); }
-
-  /**
-   * @brief Used in the constructor to convert date strings to
-   * std::chrono::system_clock::time_point
-   * @param dateString User provided date string in the form of mm/dd
-   * @return Expected time_point or error message
-   */
-  static std::expected<std::chrono::system_clock::time_point, std::string>
-  parseDate(const std::string &dateString);
 };
 
 template <> struct std::formatter<Date> {
   constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
 
   auto format(const Date &d, std::format_context &ctx) const {
-    return std::format_to(ctx.out(), "{}", Date::toString(d));
+    return std::format_to(ctx.out(), "{}", d.toString());
   }
 };

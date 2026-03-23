@@ -44,7 +44,7 @@
 
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
-            llvmPackages_20.libcxxClang
+            llvmPackages_20.clang
             llvmPackages_20.clang-tools
             llvmPackages_20.lldb
             cereal
