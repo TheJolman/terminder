@@ -59,10 +59,6 @@
             if ! test -f "build/compile_commands.json"; then
               echo "Warning: compile_commands.json not found. Run `make setup` on your first build!"
             fi
-
-            export CXX="clang++"
-            export BUILD_TYPE="debug"
-            export PATH="$PWD/build:$PATH"
           '';
         };
       }
