@@ -25,7 +25,6 @@ DESTDIR ?=
 
 # Development dirs
 SRC_DIR := src
-INCLUDE_DIR := include
 BUILD_DIR := build
 PROJECT_FILE := $(BUILD_DIR)/compile_commands.json
 
@@ -55,7 +54,7 @@ setup:
 # Compile source files into object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -I$(INCLUDE_DIR) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Link object files into executable
 $(TARGET): $(OBJS)
@@ -73,12 +72,12 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 format:
-	clang-format -i $(SRCS) $(wildcard $(INCLUDE_DIR)/*.hpp)
+	clang-format -i $(SRCS)
 
 tidy:
 	run-clang-tidy -p $(BUILD_DIR) -fix -format
 
 check:
-	cppcheck -I $(INCLUDE_DIR) --project=$(PROJECT_FILE)
+	cppcheck --project=$(PROJECT_FILE)
 
 .PHONY: all clean install uninstall format setup check
