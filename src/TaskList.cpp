@@ -12,10 +12,12 @@
 
 #include "TaskList.hpp"
 #include <cereal/archives/json.hpp>
+#include <concepts>
 #include <filesystem>
 #include <fstream>
 #include <optional>
 #include <print>
+#include <stdexcept>
 #include <tabulate/font_style.hpp>
 #include <tabulate/table.hpp>
 
@@ -41,12 +43,24 @@ void TaskList::removeTask(const std::string &taskName) noexcept {
   }
 }
 
-void TaskList::completeTask(const std::string &taskName) noexcept {
-  auto it = std::find_if(list.begin(), list.end(), [&taskName](const Task &task) {
-    return task.getName() == taskName && !task.isComplete();
-  });
-  if (it != list.end()) {
-    it->markComplete();
+template <typename T> bool TaskList::completeTask(const T &lookup) noexcept {
+  if constexpr (std::same_as<T, std::string>) {
+    // Name lookup
+    auto result = findTask(lookup);
+    if (result) {
+      result.value()->markComplete();
+      return true;
+    }
+    return false;
+
+  } else if constexpr (std::same_as<T, size_t>) {
+    // Index lookup
+    try {
+      list.at(lookup).markComplete();
+      return true;
+    } catch (const std::out_of_range &e) {
+      return false;
+    }
   }
 }
 
@@ -140,7 +154,8 @@ void TaskList::prettyPrint() {
       .font_color(Color::grey);
 
   for (size_t i = 0; i < list.size(); ++i) {
-    auto dateStr = list[i].getDueDate()
+    auto dateStr = list[i]
+                       .getDueDate()
                        .transform([](const auto &date) { return Date::toString(date); })
                        .value_or("");
     auto completion = list[i].isComplete() ? "DONE" : "TODO";
@@ -148,4 +163,22 @@ void TaskList::prettyPrint() {
   }
 
   std::cout << task_table << std::endl;
+}
+
+std::optional<size_t> TaskList::findTask(const std::string &input) {
+  auto it = std::find_if(list.begin(), list.end(), [&input](const Task &task) {
+    return task.getName().compare(0, input.length(), input) == 0;
+  });
+  if (it == list.end()) {
+    return std::nullopt;
+  }
+  return it - list.begin();
+}
+
+std::optional<Task *> TaskList::getTask(const size_t index) {
+  try {
+    return &list.at(index);
+  } catch (const std::out_of_range &e) {
+    return std::nullopt;
+  }
 }

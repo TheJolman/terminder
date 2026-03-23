@@ -25,7 +25,8 @@ public:
   std::expected<void, std::string> addTask(const std::string &taskName,
                                            const std::string &dueDate = "");
   void removeTask(const std::string &) noexcept;
-  void completeTask(const std::string &) noexcept;
+  template <typename T> bool completeTask(const T &) noexcept;
+  bool completeTask(const size_t) noexcept;
   void removeCompletedTasks() noexcept;
   void removeAllTasks();
   std::optional<std::vector<Task>> getList() const noexcept;
@@ -34,6 +35,8 @@ public:
   std::expected<void, std::string> loadFromFile();
 
   void prettyPrint();
+  std::optional<size_t> findTask(const std::string &);
+  std::optional<Task *> getTask(const size_t index);
 
 private:
   std::vector<Task> list;

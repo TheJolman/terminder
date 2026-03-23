@@ -11,28 +11,11 @@
  */
 
 #include "CLI/CLI.hpp"
-#include "Task.hpp"
 #include "TaskList.hpp"
 #include "Util.hpp"
-#include <algorithm>
 #include <expected>
 #include <print>
 #include <string>
-
-std::expected<Task, std::string> find_task(const TaskList &taskList, const std::string &input) {
-  auto tasks = taskList.getList();
-  if (!tasks.has_value()) {
-    return std::unexpected("task list could not be retrieved");
-  }
-
-  auto it = std::find_if(tasks.value().begin(), tasks.value().end(), [&input](const Task &task) {
-    return task.getName().compare(0, input.length(), input) == 0;
-  });
-  if (it == tasks.value().end()) {
-    return std::unexpected("could not find task");
-  }
-  return *it;
-}
 
 int main(int argc, char *argv[]) {
   TaskList taskList;
@@ -60,7 +43,7 @@ int main(int argc, char *argv[]) {
       util::error("a name is required");
       return;
     }
-    if (find_task(taskList, task_name)) {
+    if (taskList.findTask(task_name)) {
       util::error("task '{}' already exists", task_name);
       exit(1);
     }
@@ -86,21 +69,21 @@ int main(int argc, char *argv[]) {
 
   // Done Subcommand ==============================================================================
   CLI::App *done = app.add_subcommand("done", "Mark a task as complete");
-  done->add_option("name", task_name, "Name or pattern to complete task(s)");
+  std::string lookup{};
+  done->add_option("name", lookup, "index or name (partial OK) of task to complete");
 
   done->callback([&]() {
     if (task_name.empty()) {
-      util::error("a name is required");
+      util::error("a name or index is required");
       return;
     }
 
-    auto task = find_task(taskList, task_name);
-    if (!task) {
-      util::error("no task found matching {}", task_name);
-      return;
+    bool status = taskList.completeTask(lookup);
+    if (status) {
+      std::println("Task marked as complete.");
+    } else {
+      std::println("Task not found.");
     }
-    taskList.completeTask(task.value().getName());
-    std::println("Task '{}' marked as complete.", task.value().getName());
   });
 
   // Remove Subcommand ============================================================================
@@ -112,7 +95,7 @@ int main(int argc, char *argv[]) {
       return;
     }
 
-    auto task = find_task(taskList, task_name);
+    auto task = taskList.findTask(task_name);
     if (!task) {
       util::error("no task found matching '{}'", task_name);
       return;
