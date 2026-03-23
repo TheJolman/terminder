@@ -35,32 +35,13 @@ std::expected<void, std::string> TaskList::addTask(const std::string &taskName,
   return {};
 }
 
-void TaskList::removeTask(const std::string &taskName) noexcept {
-  auto it = std::find_if(list.begin(), list.end(),
-                         [&taskName](const Task &task) { return task.getName() == taskName; });
-  if (it != list.end()) {
-    list.erase(it);
-  }
-}
+void TaskList::removeTask(const size_t index) noexcept { list.erase(list.begin() + index); }
 
-template <typename T> bool TaskList::completeTask(const T &lookup) noexcept {
-  if constexpr (std::same_as<T, std::string>) {
-    // Name lookup
-    auto result = findTask(lookup);
-    if (result) {
-      result.value()->markComplete();
-      return true;
-    }
-    return false;
-
-  } else if constexpr (std::same_as<T, size_t>) {
-    // Index lookup
-    try {
-      list.at(lookup).markComplete();
-      return true;
-    } catch (const std::out_of_range &e) {
-      return false;
-    }
+void TaskList::completeTask(const size_t index) noexcept {
+  try {
+    list.at(index).markComplete();
+  } catch (const std::out_of_range &e) {
+    return;
   }
 }
 
@@ -165,7 +146,7 @@ void TaskList::prettyPrint() {
   std::cout << task_table << std::endl;
 }
 
-std::optional<size_t> TaskList::findTask(const std::string &input) {
+std::optional<size_t> TaskList::findTask(const std::string &input) const {
   auto it = std::find_if(list.begin(), list.end(), [&input](const Task &task) {
     return task.getName().compare(0, input.length(), input) == 0;
   });
@@ -175,9 +156,9 @@ std::optional<size_t> TaskList::findTask(const std::string &input) {
   return it - list.begin();
 }
 
-std::optional<Task *> TaskList::getTask(const size_t index) {
+std::optional<Task> TaskList::getTask(const size_t index) const {
   try {
-    return &list.at(index);
+    return list.at(index);
   } catch (const std::out_of_range &e) {
     return std::nullopt;
   }
