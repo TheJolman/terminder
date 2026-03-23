@@ -18,7 +18,7 @@ std::expected<Date, std::string> Date::fromString(const std::string &dateString)
   std::istringstream ss(dateString);
   ss >> std::chrono::parse(fmt, ymd);
   if (ss.fail()) {
-    return std::unexpected("Failed to parse date: '" + dateString + "' (expected format: mm/dd)");
+    return std::unexpected("Failed to parse date: '" + dateString + "' (expected format: mm/dd/yy)");
   }
 
   return Date(ymd);
