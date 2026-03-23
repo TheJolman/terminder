@@ -10,8 +10,8 @@
 #include <chrono>
 #include <sstream>
 
-const std::string Date::inputFormatStr = "%m/%d";
-const std::string Date::outputFormatStr = "%b %d";
+const std::string Date::inputFormatStr = "%m/%d/%y";
+const std::string Date::outputFormatStr = "%b %d %Y";
 
 std::string Date::toString() const noexcept { return std::format("{:%b %d}", date); }
 
