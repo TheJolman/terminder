@@ -29,7 +29,7 @@ size_t getValidIndexOrThrow(TaskList &taskList, const std::string &input) {
   size_t index{};
   if (isPosNum(input)) {
     // check if index exists if arg is numeric
-    index = std::stoi(input);
+    index = std::stoi(input) - 1;
     auto result = taskList.getTask(index);
     if (!result) {
       util::error("Task not found");
@@ -62,34 +62,33 @@ int main(int argc, char *argv[]) {
   // Add Subcommand ===============================================================================
   CLI::App *add = app.add_subcommand("add", "Create a new task with optional due date");
 
-  std::string task_name{};
-  add->add_option("name", task_name, "Task to add");
+  std::string nameInput{};
+  add->add_option("name", nameInput, "Task to add");
 
-  std::string date_str{};
-  add->add_option("--date,-d", date_str, "Optional date (format: mm/dd)");
+  std::string dateInput{};
+  add->add_option("--date,-d", dateInput, "Optional date (format: mm/dd/yy)");
 
   add->callback([&]() {
-    if (task_name.empty()) {
+    if (nameInput.empty()) {
       util::error("a name is required");
-      return;
+      throw CLI::RuntimeError(1);
     }
-    if (taskList.findTask(task_name)) {
-      util::error("task '{}' already exists", task_name);
-      exit(1);
-    }
-
-    auto addResult =
-        date_str.empty() ? taskList.addTask(task_name) : taskList.addTask(task_name, date_str);
-
-    if (!addResult) {
-      util::error("failed to add task: {}", addResult.error());
-      return;
+    if (taskList.findTask(nameInput)) {
+      util::error("task '{}' already exists", nameInput);
+      throw CLI::RuntimeError(1);
     }
 
-    if (date_str.empty()) {
-      std::println("Task '{}' added.", task_name);
+    if (!dateInput.empty()) {
+      auto result = Date::fromString(dateInput);
+      if (!result) {
+        util::error("{}", result.error());
+        throw CLI::RuntimeError(1);
+      }
+      taskList.addTask(Task(nameInput, result.value()));
+      std::println("Task '{}' added with due date {}.", nameInput, dateInput);
     } else {
-      std::println("Task '{}' added with due date {}.", task_name, date_str);
+      taskList.addTask(Task(nameInput));
+      std::println("Task '{}' added.", nameInput);
     }
   });
 

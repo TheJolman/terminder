@@ -11,24 +11,17 @@
  */
 
 #pragma once
+
 #include "Date.hpp"
 #include <cereal/access.hpp>
 #include <cereal/archives/json.hpp>
 #include <cereal/types/optional.hpp>
 #include <cereal/types/string.hpp>
-#include <expected>
 #include <format>
 #include <string>
 
 /**
- * @brief A class abstracts Tasks with a name, due date, and time to complete
- *        and completion status
- *
- * This class provides can parse strings to create dates and create string
- * representations for output. It handles two dates: the current date, which
- * is initialized at object creation, and a future date provided by the user.
- * Includes methods for validating dates and calculating the difference between
- * the two.
+ * @brief Tasks have a name, completion status, and due date.
  */
 class Task {
   // TODO: Get time until due
@@ -37,33 +30,10 @@ public:
   Task() : name(""), completionStatus(false), dueDate(std::nullopt) {}
 
   // Constructor with name
-  Task(const std::string &name) : name(name), completionStatus(false), dueDate(std::nullopt) {}
+  Task(const std::string &n) : name(n), completionStatus(false), dueDate(std::nullopt) {}
 
-  // To construct with a dueDateStr, use the below `create` function. This is used since
-  // parsing the due date can fail and I'm trying to avoid using exceptions.
-
-  /**
-   * @brief Creates a Task with proper error handling for date parsing
-   * @param name Task name
-   * @param dueDateStr Due date string
-   * @return Expected Task or error message
-   */
-  static std::expected<Task, std::string> create(const std::string &name,
-                                                 const std::string &dueDateStr) {
-    auto dateResult = Date::fromString(dueDateStr);
-    if (!dateResult) {
-      return std::unexpected(dateResult.error());
-    }
-
-    Task task;
-    task.name = name;
-    task.completionStatus = false;
-    task.dueDate = dateResult.value();
-
-    Date initialDate;
-
-    return task;
-  }
+  // Constructor with and date
+  Task(const std::string &n, const Date &d) : name(n), completionStatus(false), dueDate(d) {}
 
   void markComplete() { completionStatus = true; }
 

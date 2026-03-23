@@ -12,6 +12,7 @@
 
 #include "TaskList.hpp"
 #include <cereal/archives/json.hpp>
+#include <cereal/types/vector.hpp>
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -20,19 +21,7 @@
 #include <tabulate/font_style.hpp>
 #include <tabulate/table.hpp>
 
-std::expected<void, std::string> TaskList::addTask(const std::string &taskName,
-                                                   const std::string &dueDate) {
-  if (dueDate.empty()) {
-    list.emplace_back(Task(taskName));
-  } else {
-    auto taskResult = Task::create(taskName, dueDate);
-    if (!taskResult) {
-      return std::unexpected(taskResult.error());
-    }
-    list.emplace_back(taskResult.value());
-  }
-  return {};
-}
+void TaskList::addTask(const Task &t) noexcept { list.emplace_back(t); }
 
 void TaskList::removeTask(const size_t index) noexcept { list.erase(list.begin() + index); }
 
@@ -66,7 +55,7 @@ std::expected<void, std::string> TaskList::saveToFile() {
         std::format("unable to open file for writing: {}", dataFilePath.string()));
   }
   cereal::JSONOutputArchive oarchive(outFile);
-  oarchive(*this);
+  oarchive(cereal::make_nvp("tasklist", list));
   return {};
 }
 
@@ -85,7 +74,7 @@ std::expected<void, std::string> TaskList::loadFromFile() {
   }
   try {
     cereal::JSONInputArchive archive(inFile);
-    archive(*this);
+    archive(list);
   } catch (const cereal::Exception &e) {
     return std::unexpected(std::format("error parsing JSON file: {}", e.what()));
   }

@@ -13,8 +13,6 @@
 #pragma once
 
 #include "Task.hpp"
-#include <cereal/access.hpp>
-#include <cereal/types/vector.hpp>
 #include <expected>
 #include <filesystem>
 #include <optional>
@@ -22,8 +20,7 @@
 
 class TaskList {
 public:
-  std::expected<void, std::string> addTask(const std::string &taskName,
-                                           const std::string &dueDate = "");
+  void addTask(const Task &) noexcept;
   void removeTask(const size_t) noexcept;
   void completeTask(const size_t) noexcept;
   void removeCompletedTasks() noexcept;
@@ -40,10 +37,6 @@ public:
 private:
   std::vector<Task> list;
   std::filesystem::path dataFilePath;
-
-  friend class cereal::access;
-
-  template <class Archive> void serialize(Archive &ar) { ar(list); }
 
   std::filesystem::path getSaveLocation();
   void setSaveLocation();
