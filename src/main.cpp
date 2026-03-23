@@ -23,7 +23,8 @@ bool isPosNum(const std::string &s) {
 
 size_t getValidIndexOrThrow(TaskList &taskList, const std::string &input) {
   if (input.empty()) {
-    throw CLI::RuntimeError("Name or index required", 1);
+    util::error("Name or index required");
+    throw CLI::RuntimeError(1);
   }
   size_t index{};
   if (isPosNum(input)) {
@@ -31,13 +32,15 @@ size_t getValidIndexOrThrow(TaskList &taskList, const std::string &input) {
     index = std::stoi(input);
     auto result = taskList.getTask(index);
     if (!result) {
-      throw CLI::RuntimeError("Task not found", 1);
+      util::error("Task not found");
+      throw CLI::RuntimeError(1);
     }
   } else {
     // If arg is non-numeric try to find string in tasktaskList
     auto result = taskList.findTask(input);
     if (!result) {
-      throw CLI::RuntimeError("Task not found", 1);
+      util::error("Task not found");
+      throw CLI::RuntimeError(1);
     }
     index = result.value();
   }
