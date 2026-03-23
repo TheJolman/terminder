@@ -54,8 +54,6 @@ public:
 
 private:
   std::chrono::year_month_day date;
-  static const std::string inputFormatStr;
-  static const std::string outputFormatStr;
 
   friend class cereal::access;
 

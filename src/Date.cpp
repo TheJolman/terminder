@@ -10,17 +10,14 @@
 #include <chrono>
 #include <sstream>
 
-const std::string Date::inputFormatStr = "%m/%d/%y";
-const std::string Date::outputFormatStr = "%b %d %Y";
-
-std::string Date::toString() const noexcept { return std::format("{:%b %d}", date); }
+std::string Date::toString() const noexcept { return std::format("{:%b %d %Y}", date); }
 
 std::expected<std::chrono::year_month_day, std::string>
 Date::fromString(const std::string &dateString) {
-  // std::tm tm = {};
+  constexpr auto fmt = "%m/%d/%y";
   std::chrono::year_month_day ymd;
   std::istringstream ss(dateString);
-  ss >> std::chrono::parse(inputFormatStr, ymd);
+  ss >> std::chrono::parse(fmt, ymd);
   if (ss.fail()) {
     return std::unexpected("Failed to parse date: '" + dateString + "' (expected format: mm/dd)");
   }
