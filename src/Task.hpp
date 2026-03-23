@@ -34,35 +34,38 @@ class Task {
   // TODO: Get time until due
 public:
   // Default constructor
-  Task() : name(""), completionStatus(false), dueDate(std::nullopt) {}
+  // Task() : name(""), completionStatus(false), dueDate(std::nullopt) {}
 
   // Constructor with name
-  Task(const std::string &name) : name(name), completionStatus(false), dueDate(std::nullopt) {}
+  Task(const std::string &n) : name(n), completionStatus(false), dueDate(std::nullopt) {}
+
+  // Constructor with and date
+  Task(const std::string &n, const Date &d) : name(n), completionStatus(false), dueDate(d) {}
 
   // To construct with a dueDateStr, use the below `create` function. This is used since
   // parsing the due date can fail and I'm trying to avoid using exceptions.
 
-  /**
-   * @brief Creates a Task with proper error handling for date parsing
-   * @param name Task name
-   * @param dueDateStr Due date string
-   * @return Expected Task or error message
-   */
-  static std::expected<Task, std::string> create(const std::string &name,
-                                                 const std::string &dueDateStr) {
-    auto dateResult = Date::fromString(dueDateStr);
-    if (!dateResult) {
-      return std::unexpected(dateResult.error());
-    }
-
-    Task task;
-    task.name = name;
-    task.completionStatus = false;
-    task.dueDate = dateResult.value();
-
-    return task;
-  }
-
+  // /**
+  //  * @brief Creates a Task with proper error handling for date parsing
+  //  * @param name Task name
+  //  * @param dueDateStr Due date string
+  //  * @return Expected Task or error message
+  //  */
+  // static std::expected<Task, std::string> create(const std::string &name,
+  //                                                const std::string &dueDateStr) {
+  //   auto dateResult = Date::fromString(dueDateStr);
+  //   if (!dateResult) {
+  //     return std::unexpected(dateResult.error());
+  //   }
+  //
+  //   Task task;
+  //   task.name = name;
+  //   task.completionStatus = false;
+  //   task.dueDate = dateResult.value();
+  //
+  //   return task;
+  // }
+  //
   void markComplete() { completionStatus = true; }
 
   std::string getName() const { return name; }

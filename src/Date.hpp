@@ -18,39 +18,18 @@
 #include <chrono>
 #include <expected>
 #include <format>
-#include <stdexcept>
 
 /**
- * @brief A class that uses chrono to handle due dates
+ * @brief A class that uses std::chrono to handle due dates
  *
- * This class provides can parse strings to create dates and create string
- * representations for output. It handles two dates: the current date, which
- * is initialized at object creation, and a future date provided by the user.
- * Includes methods for validating dates and calculating the difference between
- * the two.
  */
 class Date {
 public:
-  /**
-   * @brief Constructs a date object with provided date
-   * @param dateStr date provided as a string
-   * @note This constructor will create a default date if parsing fails
-   */
   Date() = default;
-  Date(const std::string &dateStr) {
-    auto result = fromString(dateStr);
-    if (result) {
-      date = result.value();
-    } else {
-      throw std::invalid_argument("invalid date format");
-    }
-  }
   Date(const std::chrono::year_month_day &ymd) : date(ymd) {}
 
-  std::string toString() const noexcept;
-
-  static std::expected<std::chrono::year_month_day, std::string>
-  fromString(const std::string &dateStr);
+  static std::string toString(const Date &date) noexcept;
+  static std::expected<Date, std::string> fromString(const std::string &dateStr);
 
 private:
   std::chrono::year_month_day date;
@@ -76,6 +55,6 @@ template <> struct std::formatter<Date> {
   constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
 
   auto format(const Date &d, std::format_context &ctx) const {
-    return std::format_to(ctx.out(), "{}", d.toString());
+    return std::format_to(ctx.out(), "{}", Date::toString(d));
   }
 };

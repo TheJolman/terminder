@@ -24,12 +24,14 @@ std::expected<void, std::string> TaskList::addTask(const std::string &taskName,
                                                    const std::string &dueDate) {
   if (dueDate.empty()) {
     list.emplace_back(Task(taskName));
+    return {};
+  }
+
+  auto result = Date::fromString(dueDate);
+  if (result) {
+    list.emplace_back(Task(taskName, result.value()));
   } else {
-    auto taskResult = Task::create(taskName, dueDate);
-    if (!taskResult) {
-      return std::unexpected(taskResult.error());
-    }
-    list.emplace_back(taskResult.value());
+    return std::unexpected(result.error());
   }
   return {};
 }
@@ -136,7 +138,7 @@ void TaskList::prettyPrint() {
   for (size_t i = 0; i < list.size(); ++i) {
     auto dateStr = list[i]
                        .getDueDate()
-                       .transform([](const auto &date) { return date.toString(); })
+                       .transform([](const auto &date) { return Date::toString(date); })
                        .value_or("");
     auto completion = list[i].isComplete() ? "DONE" : "TODO";
     task_table.add_row({std::to_string(i + 1), list[i].getName(), completion, dateStr});
