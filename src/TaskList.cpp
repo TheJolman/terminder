@@ -16,47 +16,41 @@
 #include <fstream>
 #include <optional>
 #include <print>
+#include <stdexcept>
 #include <tabulate/font_style.hpp>
 #include <tabulate/table.hpp>
 
 std::expected<void, std::string> TaskList::addTask(const std::string &taskName,
-                                                   std::optional<std::string> dueDate) {
-  if (dueDate.has_value()) {
-    auto taskResult = Task::create(taskName, dueDate.value());
+                                                   const std::string &dueDate) {
+  if (dueDate.empty()) {
+    list.emplace_back(Task(taskName));
+  } else {
+    auto taskResult = Task::create(taskName, dueDate);
     if (!taskResult) {
       return std::unexpected(taskResult.error());
     }
-    list.emplace_front(taskResult.value());
-  } else {
-    list.emplace_front(Task(taskName));
+    list.emplace_back(taskResult.value());
   }
   return {};
 }
 
-void TaskList::removeTask(const std::string &taskName) noexcept {
-  auto it = std::find_if(list.begin(), list.end(),
-                         [&taskName](const Task &task) { return task.getName() == taskName; });
-  if (it != list.end()) {
-    list.erase(it);
-  }
-}
+void TaskList::removeTask(const size_t index) noexcept { list.erase(list.begin() + index); }
 
-void TaskList::completeTask(const std::string &taskName) noexcept {
-  auto it = std::find_if(list.begin(), list.end(), [&taskName](const Task &task) {
-    return task.getName() == taskName && !task.isComplete();
-  });
-  if (it != list.end()) {
-    it->markComplete();
+void TaskList::completeTask(const size_t index) noexcept {
+  try {
+    list.at(index).markComplete();
+  } catch (const std::out_of_range &e) {
+    return;
   }
 }
 
 void TaskList::removeCompletedTasks() noexcept {
-  list.remove_if([](const Task &task) { return task.isComplete(); });
+  std::erase_if(list, [](const Task &task) { return task.isComplete(); });
 }
 
 void TaskList::removeAllTasks() { list.clear(); }
 
-std::optional<std::list<Task>> TaskList::getList() const noexcept {
+std::optional<std::vector<Task>> TaskList::getList() const noexcept {
   if (list.empty()) {
     return std::nullopt;
   }
@@ -132,20 +126,39 @@ void TaskList::prettyPrint() {
   }
   using namespace tabulate;
   Table task_table;
-  int idx = 1;
   task_table.add_row({"#", "Task", "Status", "Due Date"});
   task_table[0]
       .format()
       .font_style({FontStyle::bold})
       .font_background_color(Color::white)
       .font_color(Color::grey);
-  for (const auto &t : this->list) {
-    auto dateStr = t.getDueDate()
+
+  for (size_t i = 0; i < list.size(); ++i) {
+    auto dateStr = list[i]
+                       .getDueDate()
                        .transform([](const auto &date) { return Date::toString(date); })
                        .value_or("");
-    auto completion = t.isComplete() ? "DONE" : "TODO";
-    task_table.add_row({std::to_string(idx++), t.getName(), completion, dateStr});
+    auto completion = list[i].isComplete() ? "DONE" : "TODO";
+    task_table.add_row({std::to_string(i + 1), list[i].getName(), completion, dateStr});
   }
-  // task_table.format();
+
   std::cout << task_table << std::endl;
+}
+
+std::optional<size_t> TaskList::findTask(const std::string &input) const {
+  auto it = std::find_if(list.begin(), list.end(), [&input](const Task &task) {
+    return task.getName().compare(0, input.length(), input) == 0;
+  });
+  if (it == list.end()) {
+    return std::nullopt;
+  }
+  return it - list.begin();
+}
+
+std::optional<Task> TaskList::getTask(const size_t index) const {
+  try {
+    return list.at(index);
+  } catch (const std::out_of_range &e) {
+    return std::nullopt;
+  }
 }

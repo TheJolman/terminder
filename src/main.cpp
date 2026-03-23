@@ -11,27 +11,40 @@
  */
 
 #include "CLI/CLI.hpp"
-#include "Task.hpp"
 #include "TaskList.hpp"
 #include "Util.hpp"
-#include <algorithm>
 #include <expected>
 #include <print>
 #include <string>
 
-std::expected<Task, std::string> find_task(const TaskList &taskList, const std::string &input) {
-  auto tasks = taskList.getList();
-  if (!tasks.has_value()) {
-    return std::unexpected("task list could not be retrieved");
-  }
+bool isPosNum(const std::string &s) {
+  return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit);
+}
 
-  auto it = std::find_if(tasks.value().begin(), tasks.value().end(), [&input](const Task &task) {
-    return task.getName().compare(0, input.length(), input) == 0;
-  });
-  if (it == tasks.value().end()) {
-    return std::unexpected("could not find task");
+size_t getValidIndexOrThrow(TaskList &taskList, const std::string &input) {
+  if (input.empty()) {
+    util::error("Name or index required");
+    throw CLI::RuntimeError(1);
   }
-  return *it;
+  size_t index{};
+  if (isPosNum(input)) {
+    // check if index exists if arg is numeric
+    index = std::stoi(input);
+    auto result = taskList.getTask(index);
+    if (!result) {
+      util::error("Task not found");
+      throw CLI::RuntimeError(1);
+    }
+  } else {
+    // If arg is non-numeric try to find string in tasktaskList
+    auto result = taskList.findTask(input);
+    if (!result) {
+      util::error("Task not found");
+      throw CLI::RuntimeError(1);
+    }
+    index = result.value();
+  }
+  return index;
 }
 
 int main(int argc, char *argv[]) {
@@ -60,7 +73,7 @@ int main(int argc, char *argv[]) {
       util::error("a name is required");
       return;
     }
-    if (find_task(taskList, task_name)) {
+    if (taskList.findTask(task_name)) {
       util::error("task '{}' already exists", task_name);
       exit(1);
     }
@@ -86,39 +99,22 @@ int main(int argc, char *argv[]) {
 
   // Done Subcommand ==============================================================================
   CLI::App *done = app.add_subcommand("done", "Mark a task as complete");
-  done->add_option("name", task_name, "Name or pattern to complete task(s)");
+  std::string input{};
+  done->add_option("name", input, "index or name (partial OK) of task to complete");
 
   done->callback([&]() {
-    if (task_name.empty()) {
-      util::error("a name is required");
-      return;
-    }
-
-    auto task = find_task(taskList, task_name);
-    if (!task) {
-      util::error("no task found matching {}", task_name);
-      return;
-    }
-    taskList.completeTask(task.value().getName());
-    std::println("Task '{}' marked as complete.", task.value().getName());
+    size_t index = getValidIndexOrThrow(taskList, input);
+    taskList.completeTask(index);
+    std::println("Task marked as complete.");
   });
 
   // Remove Subcommand ============================================================================
   CLI::App *rm = app.add_subcommand("rm", "Delete a task");
-  rm->add_option("name", task_name, "Name or pattern to delete task(s)");
+  rm->add_option("name", input, "Name or pattern to delete task(s)");
   rm->callback([&]() {
-    if (task_name.empty()) {
-      util::error("a name is required");
-      return;
-    }
-
-    auto task = find_task(taskList, task_name);
-    if (!task) {
-      util::error("no task found matching '{}'", task_name);
-      return;
-    }
-    taskList.removeTask(task.value().getName());
-    std::println("Task '{}' marked as deleted.", task.value().getName());
+    size_t index = getValidIndexOrThrow(taskList, input);
+    taskList.removeTask(index);
+    std::println("Task deleted.");
   });
 
   // Clear Subcommand =============================================================================
