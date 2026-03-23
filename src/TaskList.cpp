@@ -20,21 +20,7 @@
 #include <tabulate/font_style.hpp>
 #include <tabulate/table.hpp>
 
-std::expected<void, std::string> TaskList::addTask(const std::string &taskName,
-                                                   const std::string &dueDate) {
-  if (dueDate.empty()) {
-    list.emplace_back(Task(taskName));
-    return {};
-  }
-
-  auto result = Date::fromString(dueDate);
-  if (result) {
-    list.emplace_back(Task(taskName, result.value()));
-  } else {
-    return std::unexpected(result.error());
-  }
-  return {};
-}
+void TaskList::addTask(const Task &t) noexcept { list.emplace_back(t); }
 
 void TaskList::removeTask(const size_t index) noexcept { list.erase(list.begin() + index); }
 

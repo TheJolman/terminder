@@ -22,8 +22,7 @@
 
 class TaskList {
 public:
-  std::expected<void, std::string> addTask(const std::string &taskName,
-                                           const std::string &dueDate = "");
+  void addTask(const Task &) noexcept;
   void removeTask(const size_t) noexcept;
   void completeTask(const size_t) noexcept;
   void removeCompletedTasks() noexcept;
