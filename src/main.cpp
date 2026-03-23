@@ -29,7 +29,7 @@ size_t getValidIndexOrThrow(TaskList &taskList, const std::string &input) {
   size_t index{};
   if (isPosNum(input)) {
     // check if index exists if arg is numeric
-    index = std::stoi(input);
+    index = std::stoi(input) - 1;
     auto result = taskList.getTask(index);
     if (!result) {
       util::error("Task not found");
