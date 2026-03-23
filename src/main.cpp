@@ -78,10 +78,10 @@ int main(int argc, char *argv[]) {
       throw CLI::RuntimeError(1);
     }
 
-    if (dateInput.empty()) {
+    if (!dateInput.empty()) {
       auto result = Date::fromString(dateInput);
       if (!result) {
-        util::error(result.error());
+        util::error("{}", result.error());
         throw CLI::RuntimeError(1);
       }
       taskList.addTask(Task(nameInput, result.value()));
